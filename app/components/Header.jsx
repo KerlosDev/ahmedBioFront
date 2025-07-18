@@ -5,14 +5,14 @@ import Image from 'next/image'
 import ThemeToggle from './ThemeToggle'
 import { useRouter } from 'next/navigation'
 import { PiStudentBold } from "react-icons/pi";
-import { TbMathPi } from "react-icons/tb";
-import { TbMathFunction, TbMathSymbols } from "react-icons/tb";
-import { PiMathOperationsBold } from "react-icons/pi";
+import { GiDna2, GiMicroscope, GiChemicalDrop } from "react-icons/gi";
+import { FaLeaf, FaBacteria } from "react-icons/fa";
 import { RiMenu4Fill } from "react-icons/ri";
 import { IoClose, IoNotifications, IoPersonCircle } from "react-icons/io5";
 import NotificationButton from './NotificationButton';
-import { LuUser, LuLogOut, LuUserCircle, LuChevronDown, LuLogIn, LuUserPlus } from 'react-icons/lu';
+import { LuUser, LuLogOut, LuUserCircle, LuChevronDown, LuLogIn, LuUserPlus, LuStethoscope } from 'react-icons/lu';
 import sessionManager from '../utils/sessionManager';
+import { LucideStethoscope } from 'lucide-react'
 
 const Header = () => {
 
@@ -35,7 +35,8 @@ const Header = () => {
         checkUserLogin();
 
         // Set up session manager listener
-        const unsubscribe = sessionManager.addListener((event, data) => {Z
+        const unsubscribe = sessionManager.addListener((event, data) => {
+            Z
             if (event === 'login') {
                 checkUserLogin();
             } else if (event === 'logout') {
@@ -90,7 +91,7 @@ const Header = () => {
             if (userData) {
                 setUsername(userData.username);
                 setIsLoggedIn(true);
-                setIsAdmin(userData.role === 'admin'|| userData.role === 'instructor');
+                setIsAdmin(userData.role === 'admin' || userData.role === 'instructor');
                 return;
             }
 
@@ -205,16 +206,16 @@ const Header = () => {
 
     return (<header dir='rtl' className="sticky top-0 z-[100] bg-gradient-to-b from-white/80 to-white/60 dark:from-slate-900/80 dark:to-slate-900/60 
                           backdrop-blur-xl border-b border-blue-500/10 dark:border-blue-500/5">
-        {/* Math-themed background decorations */}
+        {/* Biology-themed background decorations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-2 right-1/4 opacity-20">
-                <TbMathPi className="text-3xl text-blue-500 animate-spin-slow" />
+                <GiDna2 className="text-3xl text-green-500 animate-spin-slow" />
             </div>
             <div className="absolute -bottom-2 left-1/3 opacity-20">
-                <TbMathSymbols className="text-2xl text-yellow-500 animate-pulse" />
+                <GiMicroscope className="text-2xl text-blue-500 animate-pulse" />
             </div>
             <div className="absolute top-1/2 right-1/2 transform -translate-y-1/2 opacity-20">
-                <TbMathFunction className="text-2xl text-red-500 animate-bounce" />
+                <FaLeaf className="text-2xl text-green-600 animate-bounce" />
             </div>
         </div>
 
@@ -225,13 +226,10 @@ const Header = () => {
                         <div className="relative">                                <div className="relative z-10 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12
                                               bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl
                                               transform group-hover:scale-110 transition-all duration-500">
-                            <Image
-                                src="/pi.png"
-                                alt="Pi Symbol"
-                                width={24}
-                                height={24}
-                                className="text-2xl sm:text-3xl filter brightness-0 invert"
-                            />
+                       
+
+                            <LuStethoscope className="text-2xl sm:text-3xl filter brightness-0 invert"
+                            ></LuStethoscope>
                             <div className="absolute inset-0 bg-blue-500/20 rounded-xl blur-xl 
                                                   opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                         </div>
@@ -243,7 +241,7 @@ const Header = () => {
                                              bg-clip-text text-transparent bg-gradient-to-r 
                                              from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600
                                              transition-all duration-300">
-                               احمد السيد
+                                احمد السيد
                             </h2>
                             <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-arabicUI2">
                                 مدرس الاحياء
@@ -353,7 +351,7 @@ const Header = () => {
                                                   hover:scale-100 transition-transform duration-300"></div>
                                 <span className="hidden xs:inline relative z-10">انشاء حساب</span>
                                 <span className="xs:hidden relative z-10">حساب جديد</span>
-                                <PiMathOperationsBold className="text-white text-sm sm:text-xl animate-duration-2000" />
+                                <GiDna2 className="text-white text-sm sm:text-xl animate-duration-2000" />
                                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-400/50 to-blue-700/50 rounded-lg blur-md 
                                                   opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
                             </button>
