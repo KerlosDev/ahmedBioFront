@@ -225,77 +225,259 @@ const CoursePage = () => {
                 <Head>
                     <title>جاري التحميل... -  احمد السيد </title>
                 </Head>
-                <div dir='rtl' className="min-h-screen bg-gradient-to-br from-[#0A1121] via-[#0F1629] to-[#1A202C] text-white font-arabicUI3">
+                <div dir='rtl' className="min-h-screen   text-white font-arabicUI3">
+                    {/* Animated Background */}
                     <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-purple-900/20 to-cyan-900/25" />
-                        <div className="absolute h-full w-full bg-[url('/grid.svg')] opacity-[0.03]" />
+                         <div className="absolute h-full w-full bg-[url('/grid.svg')] opacity-[0.03]" />
+                        {/* Floating particles for better loading effect */}
+                        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400/30 rounded-full animate-ping"></div>
+                        <div className="absolute top-3/4 right-1/3 w-1 h-1 bg-purple-400/40 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                        <div className="absolute top-1/2 left-3/4 w-1.5 h-1.5 bg-cyan-400/30 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
                     </div>
+
                     <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                        {/* Enhanced Loading Skeleton */}
+                        {/* Loading Status Indicator */}
+                        <div className="mb-8 text-center">
+                            <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-xl px-6 py-3 rounded-full border border-white/20">
+                                <div className="flex space-x-1">
+                                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                </div>
+                                <span className="text-white/80 font-medium">جاري تحميل المحتوى...</span>
+                            </div>
+                        </div>
+
                         <div className="space-y-8">
-                            {/* Hero Skeleton */}
-                            <div className="relative rounded-3xl overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10">
-                                <div className="aspect-[16/7] bg-gradient-to-r from-blue-900/50 to-purple-900/50 animate-pulse">
-                                    <div className="absolute inset-0 flex items-end p-8">
-                                        <div className="space-y-4 w-full max-w-4xl">
-                                            <div className="w-48 h-8 bg-white/10 rounded-2xl animate-pulse"></div>
-                                            <div className="w-96 h-16 bg-white/20 rounded-xl animate-pulse"></div>
-                                            <div className="w-32 h-8 bg-green-500/20 rounded-2xl animate-pulse"></div>
+                            {/* Enhanced Course Header Skeleton */}
+                            <div className="mb-8">
+                                {/* Compact Hero Section Skeleton */}
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                                    {/* Course Image Skeleton */}
+                                    <div className="lg:col-span-1">
+                                        <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-white/5 backdrop-blur-xl border border-white/10">
+                                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 animate-pulse">
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center animate-pulse">
+                                                        <svg className="w-8 h-8 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                {/* Floating icon skeleton */}
+                                                <div className="absolute top-4 right-4 w-12 h-12 bg-white/10 rounded-xl animate-pulse"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Course Info Skeleton */}
+                                    <div className="lg:col-span-2 flex flex-col justify-center space-y-6">
+                                        {/* Badge skeleton */}
+                                        <div className="w-32 h-12 bg-white/10 backdrop-blur-md rounded-xl animate-pulse"></div>
+
+                                        {/* Title skeleton */}
+                                        <div className="space-y-3">
+                                            <div className="w-3/4 h-12 bg-gradient-to-r from-white/10 to-blue-500/10 rounded-xl animate-pulse"></div>
+                                            <div className="w-1/2 h-8 bg-white/5 rounded-lg animate-pulse"></div>
+                                        </div>
+
+                                        {/* Description skeleton */}
+                                        <div className="space-y-2">
+                                            <div className="w-full h-4 bg-white/5 rounded animate-pulse"></div>
+                                            <div className="w-5/6 h-4 bg-white/5 rounded animate-pulse"></div>
+                                            <div className="w-3/4 h-4 bg-white/5 rounded animate-pulse"></div>
+                                        </div>
+
+                                        {/* Price and features skeleton */}
+                                        <div className="flex flex-wrap items-center gap-4">
+                                            <div className="w-32 h-12 bg-green-500/20 rounded-xl animate-pulse"></div>
+                                            <div className="w-28 h-12 bg-emerald-500/20 rounded-xl animate-pulse"></div>
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-16 h-6 bg-white/5 rounded animate-pulse"></div>
+                                                <div className="w-20 h-6 bg-white/5 rounded animate-pulse"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Content Grid Skeleton */}
+                                <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+                                    {/* Main Content Skeleton */}
+                                    <div className="xl:col-span-3 space-y-6">
+                                        {/* Description Card Skeleton */}
+                                        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <div className="w-6 h-6 bg-blue-500/20 rounded-lg animate-pulse"></div>
+                                                <div className="w-32 h-6 bg-white/10 rounded animate-pulse"></div>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <div className="w-full h-4 bg-white/5 rounded animate-pulse"></div>
+                                                <div className="w-11/12 h-4 bg-white/5 rounded animate-pulse"></div>
+                                                <div className="w-4/5 h-4 bg-white/5 rounded animate-pulse"></div>
+                                                <div className="w-3/4 h-4 bg-white/5 rounded animate-pulse"></div>
+                                            </div>
+                                        </div>
+
+                                        {/* Instructor Card Skeleton */}
+                                        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden">
+                                            {/* Header */}
+                                            <div className="bg-gradient-to-r from-purple-600/20 via-blue-600/15 to-indigo-600/20 p-6 border-b border-white/10">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 bg-white/10 rounded-xl animate-pulse"></div>
+                                                    <div className="w-24 h-6 bg-white/10 rounded animate-pulse"></div>
+                                                </div>
+                                            </div>
+                                            {/* Content */}
+                                            <div className="p-6">
+                                                <div className="flex items-start gap-6">
+                                                    {/* Profile image skeleton */}
+                                                    <div className="relative flex-shrink-0">
+                                                        <div className="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-2xl animate-pulse"></div>
+                                                        <div className="absolute -bottom-2 -right-2 w-7 h-7 bg-green-500/30 rounded-full animate-pulse"></div>
+                                                    </div>
+                                                    {/* Details skeleton */}
+                                                    <div className="flex-1 space-y-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-32 h-6 bg-white/10 rounded animate-pulse"></div>
+                                                            <div className="w-5 h-5 bg-blue-500/30 rounded-full animate-pulse"></div>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-4 h-4 bg-purple-400/30 rounded animate-pulse"></div>
+                                                                <div className="w-16 h-4 bg-white/5 rounded animate-pulse"></div>
+                                                            </div>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                <div className="w-20 h-6 bg-purple-500/10 rounded-lg animate-pulse"></div>
+                                                                <div className="w-16 h-6 bg-blue-500/10 rounded-lg animate-pulse"></div>
+                                                                <div className="w-24 h-6 bg-teal-500/10 rounded-lg animate-pulse"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Sidebar Skeleton */}
+                                    <div className="xl:col-span-1">
+                                        <div className="sticky top-8">
+                                            <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
+                                                <div className="space-y-4">
+                                                    <div className="w-full h-12 bg-white/10 rounded-xl animate-pulse"></div>
+                                                    <div className="w-3/4 h-8 bg-white/5 rounded-lg animate-pulse"></div>
+                                                    <div className="w-full h-16 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl animate-pulse"></div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Content Grid Skeleton */}
-                            <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-                                <div className="xl:col-span-3 space-y-8">
-                                    {/* Description Card Skeleton */}
-                                    <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 animate-pulse">
-                                        <div className="w-48 h-8 bg-white/10 rounded-lg mb-6"></div>
-                                        <div className="space-y-3">
-                                            <div className="w-full h-4 bg-white/10 rounded"></div>
-                                            <div className="w-5/6 h-4 bg-white/10 rounded"></div>
-                                            <div className="w-4/5 h-4 bg-white/10 rounded"></div>
-                                        </div>
-                                    </div>
-
-                                    {/* Cards Grid Skeleton */}
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 animate-pulse">
-                                            <div className="w-32 h-6 bg-white/10 rounded mb-6"></div>
-                                            <div className="flex items-center gap-6">
-                                                <div className="w-20 h-20 bg-white/10 rounded-2xl"></div>
-                                                <div className="space-y-3 flex-1">
-                                                    <div className="w-32 h-5 bg-white/10 rounded"></div>
-                                                    <div className="w-24 h-4 bg-blue-500/20 rounded"></div>
-                                                    <div className="w-48 h-3 bg-white/10 rounded"></div>
+                            {/* Learning Content Skeleton */}
+                            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                                {/* Video Player Skeleton */}
+                                <div className="xl:col-span-2 space-y-6">
+                                    {/* Enhanced Video Player Skeleton */}
+                                    <div className="relative group">
+                                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-3xl blur-xl opacity-75 animate-pulse"></div>
+                                        <div className="relative bg-black/90 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/10">
+                                            <div className="aspect-video bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+                                                <div className="text-center space-y-4">
+                                                    <div className="w-24 h-24 mx-auto bg-white/5 rounded-2xl flex items-center justify-center animate-pulse">
+                                                        <svg className="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                        </svg>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <div className="w-48 h-6 bg-white/10 rounded mx-auto animate-pulse"></div>
+                                                        <div className="w-64 h-4 bg-white/5 rounded mx-auto animate-pulse"></div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 animate-pulse">
-                                            <div className="w-40 h-6 bg-white/10 rounded mb-6"></div>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                {[...Array(4)].map((_, i) => (
-                                                    <div key={i} className="text-center p-4 bg-white/5 rounded-xl">
-                                                        <div className="w-8 h-8 bg-white/20 rounded mx-auto mb-2"></div>
-                                                        <div className="w-16 h-3 bg-white/10 rounded mx-auto"></div>
-                                                    </div>
-                                                ))}
+                                    </div>
+
+                                    {/* Current Lesson Info Skeleton */}
+                                    <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10">
+                                        <div className="flex items-start gap-6">
+                                            <div className="w-12 h-12 bg-blue-500/20 rounded-xl animate-pulse"></div>
+                                            <div className="flex-1 space-y-3">
+                                                <div className="w-3/4 h-8 bg-white/10 rounded animate-pulse"></div>
+                                                <div className="w-1/2 h-6 bg-blue-300/20 rounded animate-pulse"></div>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-24 h-4 bg-white/5 rounded animate-pulse"></div>
+                                                    <div className="w-20 h-4 bg-white/5 rounded animate-pulse"></div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Sidebar Skeleton */}
+                                {/* Course Content Sidebar Skeleton */}
                                 <div className="xl:col-span-1">
-                                    <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 animate-pulse">
-                                        <div className="p-6 border-b border-white/10">
-                                            <div className="w-32 h-6 bg-white/10 rounded"></div>
+                                    <div className="sticky top-8 space-y-6">
+                                        {/* Course Navigation Skeleton */}
+                                        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden">
+                                            {/* Header */}
+                                            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 p-6 border-b border-white/10">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <div className="w-8 h-8 bg-white/10 rounded-lg animate-pulse"></div>
+                                                    <div className="w-32 h-6 bg-white/10 rounded animate-pulse"></div>
+                                                </div>
+                                                <div className="w-24 h-4 bg-white/5 rounded animate-pulse"></div>
+                                            </div>
+                                            {/* Content */}
+                                            <div className="max-h-[600px] overflow-hidden">
+                                                <div className="p-6 space-y-6">
+                                                    {[...Array(3)].map((_, chapterIndex) => (
+                                                        <div key={chapterIndex} className="space-y-4">
+                                                            {/* Chapter header */}
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500/30 to-purple-600/30 rounded-xl animate-pulse"></div>
+                                                                <div className="flex-1 space-y-2">
+                                                                    <div className="w-full h-5 bg-white/10 rounded animate-pulse"></div>
+                                                                    <div className="w-16 h-3 bg-white/5 rounded animate-pulse"></div>
+                                                                </div>
+                                                            </div>
+                                                            {/* Lessons */}
+                                                            <div className="mr-6 space-y-3">
+                                                                {[...Array(3)].map((_, lessonIndex) => (
+                                                                    <div key={lessonIndex} className="flex items-center gap-4 p-4 rounded-xl bg-white/5">
+                                                                        <div className="w-10 h-10 bg-gray-600/50 rounded-xl animate-pulse"></div>
+                                                                        <div className="flex-1">
+                                                                            <div className="w-full h-4 bg-white/5 rounded animate-pulse"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="p-6 space-y-4">
-                                            {[...Array(6)].map((_, i) => (
-                                                <div key={i} className="w-full h-16 bg-white/5 rounded-xl"></div>
-                                            ))}
+
+                                        {/* Quiz Section Skeleton */}
+                                        <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden">
+                                            <div className="bg-gradient-to-r from-orange-600/20 to-red-600/20 p-6 border-b border-white/10">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <div className="w-8 h-8 bg-white/10 rounded-lg animate-pulse"></div>
+                                                    <div className="w-40 h-6 bg-white/10 rounded animate-pulse"></div>
+                                                </div>
+                                                <div className="w-20 h-4 bg-white/5 rounded animate-pulse"></div>
+                                            </div>
+                                            <div className="p-2">
+                                                {[...Array(2)].map((_, i) => (
+                                                    <div key={i} className="m-2 p-4 rounded-xl bg-white/5">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-12 h-12 bg-gray-600/50 rounded-xl animate-pulse"></div>
+                                                            <div className="flex-1 space-y-2">
+                                                                <div className="w-full h-4 bg-white/5 rounded animate-pulse"></div>
+                                                                <div className="w-2/3 h-3 bg-white/5 rounded animate-pulse"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -384,66 +566,83 @@ const CoursePage = () => {
 
                 <div className="relative max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-                    {/* Course Header - Completely Redesigned */}
-                    <div className="mb-12">
-                        {/* Hero Section with Glassmorphism */}
-                        <div className="relative mb-10 rounded-3xl overflow-hidden group shadow-2xl">
-                            {/* Background Image Container */}
-                            <div className="relative min-h-[300px] sm:min-h-[400px] md:min-h-[500px] bg-gradient-to-r from-indigo-900/90 via-blue-800/80 to-purple-900/90">
-                                <img
-                                    src={courseInfo.image || '/pi.png'}
-                                    alt={courseInfo.nameofcourse || 'Course Image'}
-                                    className="w-full h-auto min-h-[300px] sm:min-h-[400px] md:min-h-[500px] object-cover opacity-40 transition-all duration-1000 group-hover:opacity-60 group-hover:scale-110"
-                                    onError={(e) => {
-                                        e.target.src = '/pi.png';
-                                    }}
-                                />
+                    {/* Course Header - Restructured with Smaller Image */}
+                    <div className="mb-8">
+                        {/* Compact Hero Section */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                            {/* Course Image - Smaller Size */}
+                            <div className="lg:col-span-1">
+                                <div className="relative rounded-2xl overflow-hidden group shadow-2xl aspect-[4/3]">
+                                    <img
+                                        src={courseInfo.image || '/pi.png'}
+                                        alt={courseInfo.nameofcourse || 'Course Image'}
+                                        className="w-full h-full object-cover transition-all duration-1000 group-hover:scale-110"
+                                        onError={(e) => {
+                                            e.target.src = '/pi.png';
+                                        }}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-                                {/* Multiple Gradient Overlays for Depth */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                                    {/* Floating Icon */}
+                                    <div className="absolute top-4 right-4 w-12 h-12 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 flex items-center justify-center shadow-xl">
+                                        <FaChalkboardTeacher className="text-blue-400 text-lg" />
+                                    </div>
+                                </div>
+                            </div>
 
-                                {/* Floating Elements */}
-                                <div className="absolute top-4 sm:top-8 right-4 sm:right-8 w-12 h-12 sm:w-20 sm:h-20 bg-white/5 backdrop-blur-md rounded-xl sm:rounded-2xl border border-white/10 flex items-center justify-center shadow-xl">
-                                    <FaChalkboardTeacher className="text-blue-400 text-xl sm:text-3xl" />
+                            {/* Course Info - Takes More Space */}
+                            <div className="lg:col-span-2 flex flex-col justify-center space-y-6">
+                                {/* Course Badge */}
+                                <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-3 rounded-xl border border-white/20 shadow-lg w-fit">
+                                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                                    <FaChalkboardTeacher className="text-blue-400 text-lg" />
+                                    <span className="text-blue-300 font-semibold">كورس {courseInfo.level || "تعليمي"}</span>
                                 </div>
 
-                                {/* Content Container */}
-                                <div className="absolute inset-0 flex items-end">
-                                    <div className="w-full p-4 sm:p-8 md:p-12">
-                                        <div className="max-w-4xl space-y-3 sm:space-y-6">
-                                            {/* Course Badge */}
-                                            <div className="inline-flex items-center gap-2 sm:gap-3 bg-white/10 backdrop-blur-md px-3 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-white/20 shadow-lg">
-                                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                                                <FaChalkboardTeacher className="text-blue-400 text-sm sm:text-lg" />
-                                                <span className="text-blue-300 font-semibold text-sm sm:text-lg">كورس {courseInfo.level || "تعليمي"}</span>
-                                            </div>
+                                {/* Course Title */}
+                                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+                                    <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+                                        {courseInfo.nameofcourse}
+                                    </span>
+                                </h1>
 
-                                            {/* Course Title */}
-                                            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-black text-white leading-tight drop-shadow-2xl">
-                                                <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
-                                                    {courseInfo.nameofcourse}
-                                                </span>
-                                            </h1>
+                                {/* Course Description Preview */}
+                                <p className="text-gray-300 text-lg leading-relaxed line-clamp-3">
+                                    {courseInfo.description}
+                                </p>
 
-                                            {/* Price and Features Row */}
-                                            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                                                <div className="inline-flex items-center gap-2 sm:gap-3 bg-green-500/20 backdrop-blur-md px-3 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-green-400/30 shadow-lg">
-                                                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                                                    <span className="text-green-300 font-bold text-sm sm:text-xl">
-                                                        {courseInfo.isFree ? 'مجاني تماماً' : `${courseInfo.price} جنيه`}
-                                                    </span>
-                                                </div>
+                                {/* Price and Features Row */}
+                                <div className="flex flex-wrap items-center gap-4">
+                                    <div className="inline-flex items-center gap-3 bg-green-500/20 backdrop-blur-md px-4 py-3 rounded-xl border border-green-400/30 shadow-lg">
+                                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                        <span className="text-green-300 font-bold text-lg">
+                                            {courseInfo.isFree ? 'مجاني تماماً' : `${courseInfo.price} جنيه`}
+                                        </span>
+                                    </div>
 
-                                                {isEnrolled && (
-                                                    <div className="inline-flex items-center gap-2 sm:gap-3 bg-emerald-500/20 backdrop-blur-md px-3 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-emerald-400/30 shadow-lg">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-6 sm:w-6 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
-                                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                                        </svg>
-                                                        <span className="text-emerald-300 font-semibold text-sm sm:text-base">مشترك بالفعل</span>
-                                                    </div>
-                                                )}
-                                            </div>
+                                    {isEnrolled && (
+                                        <div className="inline-flex items-center gap-3 bg-emerald-500/20 backdrop-blur-md px-4 py-3 rounded-xl border border-emerald-400/30 shadow-lg">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                            </svg>
+                                            <span className="text-emerald-300 font-semibold">مشترك بالفعل</span>
                                         </div>
+                                    )}
+
+                                    {/* Course Stats */}
+                                    <div className="flex items-center gap-6 text-gray-400">
+                                        <span className="flex items-center gap-2">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                            </svg>
+                                            {courseVideoChapters.length} فصل
+                                        </span>
+                                        <span className="flex items-center gap-2">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            {exams.length} اختبار
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -452,44 +651,112 @@ const CoursePage = () => {
                         {/* Content Grid */}
                         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
                             {/* Main Content Area */}
-                            <div className="xl:col-span-3 space-y-8">
-                                {/* Course Description Card */}
-                                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-2xl">
-                                    <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                                        <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                                            <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="xl:col-span-3 space-y-6">
+                                {/* Course Description Card - More Compact */}
+                                <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-2xl">
+                                    <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                                        <div className="w-6 h-6 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                            <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                             </svg>
                                         </div>
-                                        نبذة عن الكورس
+                                        تفاصيل الكورس
                                     </h2>
-                                    <pre className="text-gray-300 text-lg leading-relaxed whitespace-pre-line"
+                                    <pre className="text-gray-300 text-base leading-relaxed whitespace-pre-line"
                                         style={{ fontFamily: 'inherit', background: 'none', border: 'none', padding: 0, margin: 0 }}>
                                         {courseInfo.description}
                                     </pre>
                                 </div>
 
-                                {/* Instructor & Stats Grid */}
-                                <div className="grid grid-cols-1 gap-6">
-                                    {/* Enhanced Instructor Card */}
-                                    <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-2xl">
-                                        <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
-                                            <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                                                <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                {/* Enhanced Professional Instructor Card */}
+                                <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+                                    {/* Header with Gradient Background */}
+                                    <div className="bg-gradient-to-r from-purple-600/20 via-blue-600/15 to-indigo-600/20 p-6 border-b border-white/10">
+                                        <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                                            <div className="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm">
+                                                <svg className="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                                 </svg>
                                             </div>
-                                            المدرس
+                                            <span className="bg-gradient-to-r from-white to-purple-100 bg-clip-text text-transparent">
+                                                المُحاضِر
+                                            </span>
                                         </h3>
-                                        <div className="flex items-center gap-6">
-                                            <div className="relative">
-                                                <img src="/prof.jpeg" className="w-20 h-20 rounded-2xl border-4 border-blue-500/50 shadow-xl" />
-                                                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-white/20 rounded-full"></div>
+                                    </div>
+
+                                    {/* Main Content */}
+                                    <div className="p-6">
+                                        <div className="flex items-start gap-6">
+                                            {/* Professional Profile Image */}
+                                            <div className="relative flex-shrink-0">
+                                                <div className="relative">
+                                                    {/* Animated Border Ring */}
+                                                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 via-blue-500 to-green-500 rounded-2xl blur opacity-30 animate-pulse"></div>
+
+                                                    {/* Profile Image */}
+                                                    <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-white/20 shadow-xl">
+                                                        <img
+                                                            src="/prof.jpeg"
+                                                            alt="د/ احمد السيد"
+                                                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                                                        />
+                                                        {/* Professional Overlay */}
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                                                    </div>
+
+                                                    {/* Status Indicator */}
+                                                    <div className="absolute -bottom-2 -right-2 flex items-center justify-center">
+                                                        <div className="w-7 h-7 bg-gradient-to-r from-green-400 to-emerald-500 border-3 border-white/30 rounded-full flex items-center justify-center shadow-lg">
+                                                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="flex-1">
-                                                <h4 className="text-white font-semibold text-lg mb-1">د/ احمد السيد  </h4>
-                                                <p className="text-blue-400 font-medium mb-2">مدرس الاحياء</p>
-                                                <p className="text-gray-400 text-sm leading-relaxed"> مدرس الاحياء والجيولوجيا بخبرة +3 سنوات</p>
+
+                                            {/* Professional Details */}
+                                            <div className="flex-1 space-y-4">
+                                                {/* Name and Title */}
+                                                <div className="space-y-2">
+                                                    <h4 className="text-xl font-bold text-white flex items-center gap-2">
+                                                        <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+                                                            د/ احمد السيد
+                                                        </span>
+                                                        {/* Verification Badge */}
+                                                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                                                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                            </svg>
+                                                        </div>
+                                                    </h4>
+
+
+                                                </div>
+
+
+
+                                                {/* Specializations */}
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                                        </svg>
+                                                        <span className="text-gray-400 text-sm font-medium">التخصصات:</span>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        <span className="px-2 py-1 bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-400/20 rounded-lg text-purple-300 text-xs font-medium">
+                                                            علم الأحياء
+                                                        </span>
+                                                        <span className="px-2 py-1 bg-gradient-to-r from-blue-500/10 to-teal-500/10 border border-blue-400/20 rounded-lg text-blue-300 text-xs font-medium">
+                                                            الجيولوجيا
+                                                        </span>
+                                                        <span className="px-2 py-1 bg-gradient-to-r from-teal-500/10 to-green-500/10 border border-teal-400/20 rounded-lg text-teal-300 text-xs font-medium">
+                                                            العلوم البيئية
+                                                        </span>
+                                                    </div>
+                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
