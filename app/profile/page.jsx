@@ -4,9 +4,10 @@ import {
     User, Book, BarChart2, Award, Eye, FileText, Settings as SettingsIcon,
     LogOut, CreditCard, ChevronDown, Mail, Phone, BookOpen,
     Clock, Target, Brain, Beaker, Edit2, Camera, Sun, Moon
-} from 'lucide-react'; 
-import { FaAtom, FaCalculator, FaFlask, FaInfinity, FaMicroscope, FaPlay, FaSquareRootAlt } from "react-icons/fa";
+} from 'lucide-react';
+import { FaAtom, FaDna, FaFlask, FaLeaf, FaMicroscope, FaPlay, FaSeedling } from "react-icons/fa";
 import { HiOutlineAcademicCap } from "react-icons/hi";
+import { FaVirus } from "react-icons/fa";
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import Settings from '../../app/components/Settings'; // Import the Settings component
@@ -27,7 +28,7 @@ export default function ChemistryLMSProfile({ searchParams }) {
     const [showLessonView, setShowLessonView] = useState(false);
     const [showExamAnalysis, setShowExamAnalysis] = useState(false);
     const [showChat, setShowChat] = useState(false);
-    
+
     // Theme state - synced with header theme toggle
     const [isDarkMode, setIsDarkMode] = useState(true);
 
@@ -36,7 +37,7 @@ export default function ChemistryLMSProfile({ searchParams }) {
         const savedTheme = localStorage.getItem('theme');
         const isDark = savedTheme ? savedTheme === 'dark' : true;
         setIsDarkMode(isDark);
-        
+
         // Sync with document class
         if (isDark) {
             document.documentElement.classList.add('dark');
@@ -55,7 +56,7 @@ export default function ChemistryLMSProfile({ searchParams }) {
 
         // Listen for storage changes (when theme is changed in other tabs/components)
         window.addEventListener('storage', handleThemeChange);
-        
+
         // Also check periodically in case theme is changed by other components in same tab
         const interval = setInterval(() => {
             const savedTheme = localStorage.getItem('theme');
@@ -76,7 +77,7 @@ export default function ChemistryLMSProfile({ searchParams }) {
         const newTheme = !isDarkMode;
         setIsDarkMode(newTheme);
         localStorage.setItem('theme', newTheme ? 'dark' : 'light');
-        
+
         // Update document class to sync with header toggle
         if (newTheme) {
             document.documentElement.classList.add('dark');
@@ -229,7 +230,7 @@ export default function ChemistryLMSProfile({ searchParams }) {
             value: stats.averageScore,
             label: "متوسط النتائج",
             color: "bg-indigo-600",
-            icon: <Brain className="text-indigo-600" />,
+            icon: <FaDna className="text-indigo-600" />,
             gradient: "from-indigo-600 to-purple-600"
         },
         {
@@ -237,7 +238,7 @@ export default function ChemistryLMSProfile({ searchParams }) {
             value: stats.completedExams.value.toString(),
             label: "الاختبارات المكتملة",
             color: "bg-purple-600",
-            icon: <Beaker className="text-purple-600" />,
+            icon: <FaMicroscope className="text-purple-600" />,
             gradient: "from-purple-600 to-indigo-600"
         },
         {
@@ -246,7 +247,7 @@ export default function ChemistryLMSProfile({ searchParams }) {
             label: "الكورسات المسجلة",
             subText: stats.enrolledCourses.subText,
             color: "bg-blue-600",
-            icon: <BookOpen className="text-blue-600" />,
+            icon: <FaLeaf className="text-blue-600" />,
             gradient: "from-blue-600 to-indigo-600"
         }
     ];
@@ -314,13 +315,13 @@ export default function ChemistryLMSProfile({ searchParams }) {
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className={`absolute inset-0 opacity-5 mix-blend-overlay ${isDarkMode ? 'bg-gradient-to-br from-gray-900 via-blue-900 to-indigo-900' : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'}`}></div>
             <div className={`absolute top-20 left-20 text-7xl ${isDarkMode ? 'text-white/10' : 'text-gray-300/30'}`}>
-                <FaSquareRootAlt className="animate-float" />
+                <FaSeedling className="animate-float" />
             </div>
             <div className={`absolute bottom-40 right-20 text-8xl ${isDarkMode ? 'text-white/10' : 'text-gray-300/30'}`}>
-                <FaInfinity className="animate-spin-slow" />
+                <FaDna className="animate-spin-slow" />
             </div>
             <div className={`absolute top-1/2 left-1/3 text-6xl ${isDarkMode ? 'text-white/10' : 'text-gray-300/30'}`}>
-                <FaCalculator className="animate-bounce-slow" />
+                <FaLeaf className="animate-bounce-slow" />
             </div>
             <div className={`absolute top-1/4 left-1/4 w-96 h-96 ${isDarkMode ? 'bg-blue-500/20' : 'bg-blue-200/40'} rounded-full filter blur-3xl animate-pulse`}></div>
             <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 ${isDarkMode ? 'bg-purple-500/20' : 'bg-purple-200/40'} rounded-full filter blur-3xl animate-pulse-delayed`}></div>
@@ -331,7 +332,7 @@ export default function ChemistryLMSProfile({ searchParams }) {
     const Sidebar = () => (
         <aside className={`lg:col-span-3 ${isDarkMode ? 'bg-white/10 border-white/20 hover:border-white/30' : 'bg-white/80 border-gray-200 hover:border-gray-300'} backdrop-blur-xl rounded-2xl p-6 border transition-all duration-500 h-fit`}>
             {/* Theme Toggle Button */}
-            
+
             <div className="flex flex-col items-center mb-8">
                 <div className="group relative">
                     <div className="flex  justify-center">
