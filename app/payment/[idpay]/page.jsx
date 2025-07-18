@@ -234,24 +234,16 @@ const Page = ({ params }) => {
         return (
             <div className="space-y-4 sm:space-y-6">
                 <div className="space-y-4">
-                    <h3 dir='rtl' className="text-lg gap-4 sm:text-xl font-medium text-center flex  place-items-center"> طريقة الدفع فودافون كاش او انستا باي <span><BsCashCoin></BsCashCoin></span> </h3>
+                    <h3 dir='rtl' className="text-lg gap-4 sm:text-xl font-medium text-center flex  place-items-center"> طريقة الدفع فودافون كاش <span><BsCashCoin></BsCashCoin></span> </h3>
                     <div className="bg-gradient-to-tr from-[#ff3b42] to-[#FF8C8F] p-4 sm:p-6 rounded-xl text-center space-y-3">
                         <div className="space-y-2 flex flex-col items-center">
                             <img src="/vodafone.png" alt="Vodafone Cash" className="w-40 filter brightness-0 invert mx-auto mb-2" />
                             <p className="text-lg sm:text-xl">حول على رقم فودافون كاش</p>
-                            <p className="text-2xl sm:text-4xl font-bold tracking-wider">01032714327</p>
+                            <p className="text-2xl sm:text-4xl font-bold tracking-wider">01069750047</p>
                         </div>
                     </div>
                 </div>
-                <div className="space-y-4">
-                    <div className="bg-gradient-to-r from-slate-50 to-slate-100 text-[#532773] p-4 sm:p-6 rounded-xl text-center space-y-3">
-                        <div className="space-y-2 flex flex-col items-center">
-                            <img src="/insta.png" alt="Instapay" className="w-40 mx-auto mb-2" />
-                            <p className="text-lg sm:text-xl">او  رقم انستا باي</p>
-                            <p className="text-2xl sm:text-4xl font-bold tracking-wider">01142876308</p>
-                        </div>
-                    </div>
-                </div>
+                
 
                 <div className="space-y-4">
                     <label className="block text-sm text-blue-400">أدخل رقم الموبايل الذي حولت منه</label>
