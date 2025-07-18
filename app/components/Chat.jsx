@@ -10,7 +10,7 @@ export default function ContactButtons() {
          
           
           <a 
-            href="https://t.me/Hossammirah" 
+            href="https://t.me/Ahmdology" 
             target="_blank" 
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-3 px-6 py-4 bg-blue-600/20 hover:bg-blue-600/30 rounded-xl text-blue-400 transition-all w-full group"

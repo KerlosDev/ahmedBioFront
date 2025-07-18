@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { FaFacebook, FaTelegram, FaYoutube } from "react-icons/fa";
+import { FaFacebook, FaTelegram, FaTiktok, FaYoutube } from "react-icons/fa";
 import { BsWhatsapp } from "react-icons/bs";
 import { BiMath } from "react-icons/bi";
 import { TbMathFunction, TbMathIntegral, TbMathPi } from "react-icons/tb";
@@ -13,10 +13,10 @@ const Footer = () => {
     ];
 
     const socials = [
-        { icon: <FaYoutube size={24} />, href: "https://youtube.com/@hossammirah?si=okHxGI_hKoYzqUcc", label: "YouTube", color: "hover:text-red-500" },
-        { icon: <FaFacebook size={24} />, href: "https://www.facebook.com/share/16hNBr3APE/?mibextid=wwXIfr", label: "Facebook", color: "hover:text-blue-500" },
-        { icon: <FaTelegram size={24} />, href: "https://t.me/+ELVrCqJYCeZiYmVk", label: "Telegram", color: "hover:text-blue-500" },
-        { icon: <FiInstagram size={24} />, href: "https://www.instagram.com/hossammirah", label: "Telegram", color: "hover:text-orange-500" },
+        { icon: <FaYoutube size={24} />, href: "https://www.youtube.com/@DrAhmedElSayed736", label: "YouTube", color: "hover:text-red-500" },
+        { icon: <FaFacebook size={24} />, href: "https://www.facebook.com/ahmedsayed736", label: "Facebook", color: "hover:text-blue-500" },
+        { icon: <FaTelegram size={24} />, href: "https://t.me/Drahmedsayed", label: "Telegram", color: "hover:text-blue-500" },
+        { icon: <FaTiktok size={24} />, href: "https://www.tiktok.com/@drahmedelsayed736", label: "Telegram", color: "hover:text-orange-500" },
     ];
 
     const mathSymbols = ['∑', '∫', 'π', '∞', '√', '∆', 'θ', 'α', 'β', 'γ']; return (
@@ -78,7 +78,7 @@ const Footer = () => {
                         </h4>
                         <div className="space-y-3">
                             <div className="text-gray-400 text-sm">
-                                <a href="https://t.me/Hossammirah" dir='rtl' className="text-blue-400 hover:text-blue-300 transition-colors">
+                                <a href="https://t.me/Ahmdology" dir='rtl' className="text-blue-400 hover:text-blue-300 transition-colors">
                                     تواصل تيليجرام
                                 </a>
                             </div>

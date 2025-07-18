@@ -39,7 +39,7 @@ const Hero = () => {
                                 className="relative z-10 w-full h-[500px] sm:h-auto max-w-lg mx-auto 
                                          object-contain sm:object-cover drop-shadow-2xl 
                                          hover:scale-102 transition-transform duration-300"
-                                alt="Hossam Image"
+                                alt="Ahmed Image"
                             />
                         </div>
                     </div>
