@@ -1,10 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { FaLightbulb, FaStar, FaGraduationCap, FaUsers, FaTrophy, FaPlay } from "react-icons/fa";
-import { GiTakeMyMoney } from "react-icons/gi";
+import { FaLightbulb, FaStar, FaGraduationCap, FaUsers, FaTrophy, FaPlay, FaLeaf, FaMicroscope, FaFlask } from "react-icons/fa";
+import { GiTakeMyMoney, GiDna2, GiMicroscope, GiPlantSeed } from "react-icons/gi";
 import { FaCalculator, FaSquareRootAlt, FaInfinity, FaChartLine, FaPrint, FaQuoteLeft, FaAward } from "react-icons/fa";
-import { MdFunctions, MdVideoLibrary, MdSchool } from "react-icons/md";
-import { TbMathSymbols, TbMathIntegral, TbCertificate } from "react-icons/tb";
+import { MdFunctions, MdVideoLibrary, MdSchool, MdBiotech } from "react-icons/md";
+import { TbMathSymbols, TbMathIntegral, TbCertificate, TbDna } from "react-icons/tb";
 import { BsCheckCircleFill } from "react-icons/bs";
 import Link from 'next/link';
 
@@ -14,16 +14,16 @@ const Hero = () => {
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-20 right-10 w-40 h-40 bg-blue-500/10 backdrop-blur-3xl rounded-full 
                               flex items-center justify-center animate-float">
-                    <FaPrint className="text-6xl text-blue-500/50 animate-spin-slow" />
+                    <FaLeaf className="text-6xl text-blue-500/50 animate-spin-slow" />
                 </div>
                 <div className="absolute top-40 left-20 w-48 h-48 bg-red-500/10 backdrop-blur-3xl rounded-full 
                               flex items-center justify-center animate-float-delayed">
-                    <FaSquareRootAlt className="text-7xl text-red-500/50 animate-bounce" />
+                    <GiMicroscope className="text-7xl text-red-500/50 animate-bounce" />
                 </div>
                 {/* New decorative elements */}
                 <div className="absolute bottom-20 right-1/4 w-32 h-32 bg-yellow-500/10 backdrop-blur-3xl rounded-full 
                               flex items-center justify-center animate-pulse">
-                    <FaInfinity className="text-5xl text-yellow-500/50 animate-spin" />
+                    <GiDna2 className="text-5xl text-yellow-500/50 animate-spin" />
                 </div>
                 <div className="absolute inset-0 opacity-10   bg-repeat mix-blend-overlay"></div>
             </div>
@@ -64,16 +64,16 @@ const Hero = () => {
                                         <div className="w-12 h-12 bg-gradient-to-br from-blue-500/30 to-purple-500/30 
                                                       rounded-full flex items-center justify-center group-hover:scale-110 
                                                       transition-transform duration-300">
-                                            <FaCalculator className="text-2xl text-blue-600 animate-spin-slow" />
+                                            <FaMicroscope className="text-2xl text-blue-600 animate-spin-slow" />
                                         </div>
                                         <h1 className="text-4xl sm:text-5xl lg:text-7xl font-arabicUI2 
                                                      bg-gradient-to-l from-blue-600 via-purple-600 to-blue-800 
                                                      bg-clip-text text-transparent font-bold 
                                                      drop-shadow-lg group-hover:scale-105 transition-transform duration-300">
-احمد السيد                                        </h1>                                        <div className="hidden sm:flex w-12 h-12 bg-gradient-to-br from-yellow-500/30 to-red-500/30 
+                                            احمد السيد                                        </h1>                                        <div className="hidden sm:flex w-12 h-12 bg-gradient-to-br from-yellow-500/30 to-red-500/30 
                                                       rounded-full items-center justify-center group-hover:scale-110 
                                                       transition-transform duration-300">
-                                            <TbCertificate className="text-2xl text-yellow-600 animate-pulse" />
+                                            <FaFlask className="text-2xl text-yellow-600 animate-pulse" />
                                         </div>
                                     </div>
                                 </div>
@@ -156,7 +156,7 @@ const Hero = () => {
                                         <div className="flex flex-col items-center text-center space-y-2">
                                             <div className="w-12 h-12 bg-blue-500/30 rounded-full flex items-center justify-center
                                                           group-hover/item:animate-spin">
-                                                <TbMathIntegral className="text-2xl text-blue-500" />
+                                                <GiDna2 className="text-2xl text-blue-500" />
                                             </div>
                                             <span className="text-sm font-arabicUI3 text-blue-700 dark:text-blue-300 font-semibold">
                                                 حلول تفاعلية متقدمة
@@ -171,7 +171,7 @@ const Hero = () => {
                                         <div className="flex flex-col items-center text-center space-y-2">
                                             <div className="w-12 h-12 bg-red-500/30 rounded-full flex items-center justify-center
                                                           group-hover/item:animate-bounce">
-                                                <MdFunctions className="text-2xl text-red-500" />
+                                                <MdBiotech className="text-2xl text-red-500" />
                                             </div>
                                             <span className="text-sm font-arabicUI3 text-red-700 dark:text-red-300 font-semibold">
                                                 شرح مبسط وواضح
@@ -187,7 +187,7 @@ const Hero = () => {
                                         <div className="flex flex-col items-center text-center space-y-2">
                                             <div className="w-12 h-12 bg-green-500/30 rounded-full flex items-center justify-center
                                                           group-hover/item:animate-pulse">
-                                                <TbMathSymbols className="text-2xl text-green-500" />
+                                                <GiPlantSeed className="text-2xl text-green-500" />
                                             </div>
                                             <span className="text-sm font-arabicUI3 text-green-700 dark:text-green-300 font-semibold">
                                                 أمثلة متنوعة شاملة
