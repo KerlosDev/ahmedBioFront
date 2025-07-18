@@ -460,7 +460,7 @@ export default function PaymentsList() {
                 />
             )}
 
-            <ToastContainer position="top-right" dir="rtl" />
+            <ToastContainer position="bottom-right" dir="rtl" />
         </div>
     );
 }
