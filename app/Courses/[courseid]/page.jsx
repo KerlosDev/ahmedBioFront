@@ -156,7 +156,7 @@ const CoursePage = () => {
     useEffect(() => {
         // Update the document title when courseInfo changes
         if (courseInfo.nameofcourse) {
-            document.title = `${courseInfo.nameofcourse} - منصة حسام ميرة `;
+            document.title = `${courseInfo.nameofcourse} - منصة احمد السيد  `;
         }
     }, [courseInfo]);
 
@@ -223,7 +223,7 @@ const CoursePage = () => {
         return (
             <>
                 <Head>
-                    <title>جاري التحميل... -  حسام ميرة</title>
+                    <title>جاري التحميل... -  احمد السيد </title>
                 </Head>
                 <div dir='rtl' className="min-h-screen bg-gradient-to-br from-[#0A1121] via-[#0F1629] to-[#1A202C] text-white font-arabicUI3">
                     <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -315,7 +315,7 @@ const CoursePage = () => {
     return (
         <>
             <Head>
-                <title>{courseInfo.nameofcourse ? `${courseInfo.nameofcourse} - منصة حسام ميرة   ` : 'منصة حسام ميرة '}</title>
+                <title>{courseInfo.nameofcourse ? `${courseInfo.nameofcourse} - منصة احمد السيد    ` : 'منصة احمد السيد  '}</title>
                 {/* Add Plyr CSS */}
                 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
                 {/* Add custom styling for Plyr */}
@@ -487,9 +487,9 @@ const CoursePage = () => {
                                                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-white/20 rounded-full"></div>
                                             </div>
                                             <div className="flex-1">
-                                                <h4 className="text-white font-semibold text-lg mb-1">أ/ حسام ميرة </h4>
-                                                <p className="text-blue-400 font-medium mb-2">مدرس الرياضيات</p>
-                                                <p className="text-gray-400 text-sm leading-relaxed"> مدرس الرياضيات البحتة والتطبيقية بخبرة +5 سنوات</p>
+                                                <h4 className="text-white font-semibold text-lg mb-1">د/ احمد السيد  </h4>
+                                                <p className="text-blue-400 font-medium mb-2">مدرس الاحياء</p>
+                                                <p className="text-gray-400 text-sm leading-relaxed"> مدرس الاحياء والجيولوجيا بخبرة +3 سنوات</p>
                                             </div>
                                         </div>
                                     </div>

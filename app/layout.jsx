@@ -31,8 +31,8 @@ const abrilFatface = Abril_Fatface({
 });
 
 export const metadata = {
-  title: "حسام ميرة رياضيات | Hossam Mira Math",
-  description: " شرح وحل تمارين مادة الرياضيات لطلاب الصفوف الثانوية الثلاثة بكل بساطة ",
+  title: " احمد السيد احياء | Ahmed ElSayed Bio",
+  description: " منصة تعليمية متخصصة في شرح منهج الأحياء لطلاب المرحلة الثانوية بأسلوب علمي ومنظم. يقدم الأستاذ أحمد السيد محتوى تعليمي شامل يشمل الشرح التفصيلي، المراجعات، وحلول الأسئلة، بهدف دعم الطالب لتحقيق أعلى الدرجات بأفضل الطرق.",
 };
 
 export default function RootLayout({ children }) {

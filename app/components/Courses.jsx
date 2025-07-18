@@ -313,7 +313,7 @@ const Courses = () => {
                         <FaCalculator className="text-3xl sm:text-4xl text-blue-500 animate-spin-slow" />
                     </div>
                     <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 font-arabicUI3 mt-4">
-                        اختر الكورس المناسب وابدأ رحلة تعلم الرياضيات
+                        اختر الكورس المناسب وابدأ رحلة تعلم الاحياء
                     </p>
                 </div>
                 {/* Level Selection Tabs */}

@@ -346,18 +346,18 @@ const Page = () => {
                          bg-white/5 backdrop-blur-lg border border-white/10 hover:border-white/20 
                          transform hover:scale-105 transition-all duration-500">
                         <IoMdCalculator className="text-3xl text-blue-300" />
-                        <span className="font-arabicUI2 text-xl text-blue-300">منصة حسام ميرة</span>
+                        <span className="font-arabicUI2 text-xl text-blue-300">منصة احمد السيد </span>
                     </div>
 
                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-arabicUI2 font-bold text-white leading-tight">
                         انضم إلى منصة
                         <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-300">
-                            عالم الرياضيات
+                            عالم الاحياء
                         </span>
                     </h1>
 
                     <p className="text-base sm:text-lg lg:text-xl font-arabicUI2 text-white/80 leading-relaxed max-w-xl mx-auto lg:mx-0">
-                        فالمنصة دي كان هدفي اخلي الرياضيات بالنسبالك لعبة مش مجرد ماده هتاخدها وبعد متخلص ثانوية عامه
+                        فالمنصة دي كان هدفي اخلي الاحياء بالنسبالك لعبة مش مجرد ماده هتاخدها وبعد متخلص ثانوية عامه
                         <span className="text-blue-300"> ترميها لا بالعكس </span>
                         انت هتبقي عايز تكمل فيها لان احنا خليناها عادة مش مجرد ماده ❤️
                     </p>
@@ -387,7 +387,7 @@ const Page = () => {
                                 </div>
                             </div>
                             <h2 className="text-2xl font-arabicUI2 font-bold text-white mb-2">سجل معنا الآن</h2>
-                            <p className="text-white/60 font-arabicUI2">ابدأ رحلتك مع عالم الرياضيات الممتع</p>
+                            <p className="text-white/60 font-arabicUI2">ابدأ رحلتك مع عالم الاحياء الممتع</p>
 
                             {/* Progress Bar */}
                             <div className="mt-6 mb-4 flex justify-between items-center">

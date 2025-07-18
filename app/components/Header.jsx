@@ -243,10 +243,10 @@ const Header = () => {
                                              bg-clip-text text-transparent bg-gradient-to-r 
                                              from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600
                                              transition-all duration-300">
-                                حسام ميرة
+                               احمد السيد
                             </h2>
                             <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-arabicUI2">
-                                مدرس الرياضيات
+                                مدرس الاحياء
                             </span>
                         </div>
                     </div>

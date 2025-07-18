@@ -70,8 +70,7 @@ const Hero = () => {
                                                      bg-gradient-to-l from-blue-600 via-purple-600 to-blue-800 
                                                      bg-clip-text text-transparent font-bold 
                                                      drop-shadow-lg group-hover:scale-105 transition-transform duration-300">
-                                            حسام ميرة
-                                        </h1>                                        <div className="hidden sm:flex w-12 h-12 bg-gradient-to-br from-yellow-500/30 to-red-500/30 
+احمد السيد                                        </h1>                                        <div className="hidden sm:flex w-12 h-12 bg-gradient-to-br from-yellow-500/30 to-red-500/30 
                                                       rounded-full items-center justify-center group-hover:scale-110 
                                                       transition-transform duration-300">
                                             <TbCertificate className="text-2xl text-yellow-600 animate-pulse" />
@@ -96,7 +95,7 @@ const Hero = () => {
                                         <FaTrophy className="text-yellow-500 text-lg animate-spin-slow" />
                                         <span className="text-base sm:text-lg font-arabicUI3 
                                                        text-slate-700 dark:text-slate-300">
-                                            مدرس الرياضيات البحتة والتطبيقية بخبرة +5 سنوات                                        </span>
+                                            مدرس الاحياء والجيولوجيا  بخبرة +3 سنوات                                        </span>
                                     </div>
                                 </div>
 
@@ -144,7 +143,7 @@ const Hero = () => {
                                         <FaChartLine className="text-3xl text-blue-500 animate-pulse" />
                                         <h3 className="text-xl sm:text-2xl lg:text-3xl font-arabicUI3 
                                                      text-slate-600 dark:text-slate-300">
-                                            شرح الرياضيات بالنظام الجديد                                        </h3>
+                                            شرح الاحياء بالنظام الجديد                                        </h3>
                                         <MdVideoLibrary className="text-3xl text-green-500 animate-bounce" />
                                     </div>
                                 </div>
