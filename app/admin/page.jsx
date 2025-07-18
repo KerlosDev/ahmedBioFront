@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { Users, Book, BarChart2, CreditCard, CheckCircle, AlertTriangle } from 'lucide-react';
-import { FaSquareRootAlt, FaPrint, FaInfinity } from "react-icons/fa";
+import { FaDna, FaMicroscope, FaLeaf } from "react-icons/fa";
 import AdminSidebar from './components/AdminSidebar';
 import DashboardStats from './components/DashboardStats';
 import StudentsList from './components/StudentsList';
@@ -20,7 +20,7 @@ import NotificationManagement from './components/NotificationManagement';
 import CoursesAnalyses from './components/CoursesAnalyses';
 
 
-export default function MathLMSAdmin() {
+export default function BiologyLMSAdmin() {
     const [isAdmin, setIsAdmin] = useState(null); // To track admin status
     const router = useRouter();
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -34,7 +34,7 @@ export default function MathLMSAdmin() {
     // Admin profile data
     const [adminData, setAdminData] = useState({
         name: " ادمن",
-        email: "admin@math-lms.com",
+        email: "admin@biology-lms.com",
         phoneNumber: "0123456789",
         role: "مسؤول النظام",
         joinedDate: "2023-05-15T00:00:00.000Z",
@@ -125,18 +125,18 @@ export default function MathLMSAdmin() {
         setShowLogoutConfirm(false);
     };
 
-    // Math background component
-    const MathBackground = () => (
+    // Biology background component
+    const BiologyBackground = () => (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute inset-0   opacity-5 mix-blend-overlay"></div>
             <div className="absolute top-20 left-20 text-white/10 text-7xl">
-                <FaPrint className="animate-float" />
+                <FaMicroscope className="animate-float" />
             </div>
             <div className="absolute bottom-40 right-20 text-white/10 text-8xl">
-                <FaInfinity className="animate-spin-slow" />
+                <FaLeaf className="animate-spin-slow" />
             </div>
             <div className="absolute top-1/2 left-1/3 text-white/10 text-6xl">
-                <FaSquareRootAlt className="animate-bounce-slow" />
+                <FaDna className="animate-bounce-slow" />
             </div>
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse"></div>
             <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full filter blur-3xl animate-pulse-delayed"></div>
@@ -157,8 +157,8 @@ export default function MathLMSAdmin() {
 
     return (
         <div className="min-h-screen p-8 relative">
-            {/* Math-themed animated background */}
-            <MathBackground />
+            {/* Biology-themed animated background */}
+            <BiologyBackground />
 
             <div className="relative z-10">
 

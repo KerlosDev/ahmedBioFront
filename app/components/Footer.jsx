@@ -2,8 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { FaFacebook, FaTelegram, FaTiktok, FaYoutube } from "react-icons/fa";
 import { BsWhatsapp } from "react-icons/bs";
-import { BiMath } from "react-icons/bi";
-import { TbMathFunction, TbMathIntegral, TbMathPi } from "react-icons/tb";
+import { GiDna2, GiMicroscope, GiChemicalDrop } from "react-icons/gi";
+import { TbDna, TbMicroscope, TbLeaf } from "react-icons/tb";
 import { FiInstagram } from 'react-icons/fi';
 
 const Footer = () => {
@@ -19,14 +19,14 @@ const Footer = () => {
         { icon: <FaTiktok size={24} />, href: "https://www.tiktok.com/@drahmedelsayed736", label: "Telegram", color: "hover:text-orange-500" },
     ];
 
-    const mathSymbols = ['∑', '∫', 'π', '∞', '√', '∆', 'θ', 'α', 'β', 'γ']; return (
+    const mathSymbols = ['🧬', '🔬', '🧪', '🌱', '🦠', '🧫', '🧠', '🫀', '🦴', '🧬']; return (
         <footer dir="rtl" className="relative bg-slate-900/95 font-arabicUI3 overflow-hidden border-t border-gray-800">
-            {/* Subtle Mathematical Background */}
+            {/* Subtle Biology Background */}
             <div className="absolute inset-0 opacity-3">
-                <div className="absolute top-4 left-8 text-3xl text-blue-500/30">π</div>
-                <div className="absolute top-6 right-12 text-2xl text-purple-500/30">∑</div>
-                <div className="absolute bottom-4 left-12 text-2xl text-green-500/30">∫</div>
-                <div className="absolute bottom-6 right-8 text-xl text-blue-500/30">∞</div>
+                <div className="absolute top-4 left-8 text-3xl text-blue-500/30">🧬</div>
+                <div className="absolute top-6 right-12 text-2xl text-purple-500/30">🔬</div>
+                <div className="absolute bottom-4 left-12 text-2xl text-green-500/30">🌱</div>
+                <div className="absolute bottom-6 right-8 text-xl text-blue-500/30">🧪</div>
             </div>
 
             <div className="relative max-w-7xl mx-auto px-6 py-8">
@@ -37,7 +37,7 @@ const Footer = () => {
                     <div className="space-y-3">
                         <div className="flex items-center gap-2">
                             <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
-                                <TbMathFunction size={20} className="text-white" />
+                                <GiDna2 size={20} className="text-white" />
                             </div>
                             <div>
                                 <h3 className="text-lg font-bold text-white">د احمد السيد </h3>
@@ -52,7 +52,7 @@ const Footer = () => {
                     {/* Quick Links - Compact */}
                     <div className="space-y-3">
                         <h4 className="text-base font-semibold text-white flex items-center gap-2">
-                            <TbMathIntegral size={16} className="text-blue-400" />
+                            <GiMicroscope size={16} className="text-blue-400" />
                             روابط سريعة
                         </h4>
                         <ul className="space-y-2">
@@ -73,7 +73,7 @@ const Footer = () => {
                     {/* Contact & Social - Compact */}
                     <div className="space-y-3">
                         <h4 className="text-base font-semibold text-white flex items-center gap-2">
-                            <TbMathPi size={16} className="text-blue-400" />
+                            <TbLeaf size={16} className="text-blue-400" />
                             تواصل معنا
                         </h4>
                         <div className="space-y-3">

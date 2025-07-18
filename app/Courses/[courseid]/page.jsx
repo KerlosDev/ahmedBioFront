@@ -483,7 +483,7 @@ const CoursePage = () => {
                                         </h3>
                                         <div className="flex items-center gap-6">
                                             <div className="relative">
-                                                <img src="/prof.jpg" className="w-20 h-20 rounded-2xl border-4 border-blue-500/50 shadow-xl" />
+                                                <img src="/prof.jpeg" className="w-20 h-20 rounded-2xl border-4 border-blue-500/50 shadow-xl" />
                                                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-white/20 rounded-full"></div>
                                             </div>
                                             <div className="flex-1">
