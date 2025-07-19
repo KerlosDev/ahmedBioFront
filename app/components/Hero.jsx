@@ -7,6 +7,7 @@ import { MdFunctions, MdVideoLibrary, MdSchool, MdBiotech } from "react-icons/md
 import { TbMathSymbols, TbMathIntegral, TbCertificate, TbDna } from "react-icons/tb";
 import { BsCheckCircleFill } from "react-icons/bs";
 import Link from 'next/link';
+import styles from './Hero.module.css';
 
 const Hero = () => {
     return (
@@ -66,10 +67,7 @@ const Hero = () => {
                                                       transition-transform duration-300">
                                             <FaMicroscope className="text-2xl text-blue-600 animate-spin-slow" />
                                         </div>
-                                        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-arabicUI2 
-                                                     bg-gradient-to-l from-blue-600 via-purple-600 to-blue-800 
-                                                     bg-clip-text text-transparent font-bold 
-                                                     drop-shadow-lg group-hover:scale-105 transition-transform duration-300">
+                                        <h1 className={styles.teacherName}>
                                             احمد السيد                                        </h1>                                        <div className="hidden sm:flex w-12 h-12 bg-gradient-to-br from-yellow-500/30 to-red-500/30 
                                                       rounded-full items-center justify-center group-hover:scale-110 
                                                       transition-transform duration-300">
@@ -133,9 +131,7 @@ const Hero = () => {
                                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-arabicUI3 
                                                  text-slate-800 dark:text-slate-200 mb-2">
                                         أهلاً بدفعة{' '}
-                                        <span className="inline-block text-5xl sm:text-6xl lg:text-7xl text-red-500 
-                                                       font-bold transform hover:scale-110 transition-transform duration-300
-                                                       bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">
+                                        <span className={styles.year2026}>
                                             2026
                                         </span>
                                     </h1>

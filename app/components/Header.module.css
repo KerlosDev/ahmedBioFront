@@ -1,0 +1,25 @@
+.teacherName {
+  font-family: 'arabicUI2';
+  font-size: 1.125rem; /* text-lg */
+  font-weight: bold;
+  background: linear-gradient(to right, #2563eb, #1e40af); /* from-blue-600 to-blue-800 */
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  transition: all 0.3s ease;
+}
+
+/* Dark mode styles */
+:global(.dark) .teacherName {
+  background: linear-gradient(to right, #60a5fa, #3b82f6); /* dark:from-blue-400 dark:to-blue-600 */
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Responsive styles */
+@media (min-width: 640px) {
+  .teacherName {
+    font-size: 1.5rem; /* sm:text-2xl */
+  }
+}

@@ -13,6 +13,7 @@ import NotificationButton from './NotificationButton';
 import { LuUser, LuLogOut, LuUserCircle, LuChevronDown, LuLogIn, LuUserPlus, LuStethoscope } from 'react-icons/lu';
 import sessionManager from '../utils/sessionManager';
 import { LucideStethoscope } from 'lucide-react'
+import styles from './Header.module.css';
 
 const Header = () => {
 
@@ -226,7 +227,7 @@ const Header = () => {
                         <div className="relative">                                <div className="relative z-10 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12
                                               bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl
                                               transform group-hover:scale-110 transition-all duration-500">
-                       
+
 
                             <LuStethoscope className="text-2xl sm:text-3xl filter brightness-0 invert"
                             ></LuStethoscope>
@@ -237,10 +238,8 @@ const Header = () => {
                                               opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
                         </div>
                         <div className="flex flex-col">
-                            <h2 className="font-arabicUI2 text-lg sm:text-2xl font-bold 
-                                             bg-clip-text text-transparent bg-gradient-to-r 
-                                             from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600
-                                             transition-all duration-300">
+
+                            <h2 className={styles.teacherName}>
                                 احمد السيد
                             </h2>
                             <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-arabicUI2">

@@ -1,52 +1,85 @@
-.heroContainer {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 80vh;
-  padding: 0 5%;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
-  overflow: hidden;
+/* Teacher's name gradient */
+.teacherName {
+  font-family: 'arabicUI2';
+  font-weight: bold;
+  background: linear-gradient(to left, #2563eb, #9333ea, #1e40af); /* from-blue-600 via-purple-600 to-blue-800 */
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
 }
 
-.heroContent {
-  flex: 1;
-  max-width: 600px;
-  margin-right: 2rem;
+.teacherName:hover {
+  transform: scale(1.05);
 }
 
-.heroTitle {
-  font-size: 3.5rem;
-  font-weight: 700;
-  color: #1a1a2e;
-  margin-bottom: 1.5rem;
-  line-height: 1.2;
+/* Professional title gradient */
+.professionalTitle {
+  font-family: 'arabicUI3';
+  font-weight: bold;
+  background: linear-gradient(to left, #9333ea, #2563eb, #0891b2); /* from-purple-600 via-blue-600 to-cyan-600 */
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
-.heroSubtitle {
-  font-size: 1.25rem;
-  line-height: 1.6;
-  color: #4a4a68;
-  margin-bottom: 2.5rem;
+/* Year 2026 gradient */
+.year2026 {
+  font-weight: bold;
+  background: linear-gradient(to right, #ef4444, #f97316); /* from-red-500 to-orange-500 */
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  display: inline-block;
+  transition: transform 0.3s ease;
 }
 
-.ctaButton {
-  padding: 0.875rem 2rem;
-  font-size: 1rem;
-  font-weight: 600;
-  background-color: #4361ee;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-right: 1rem;
+.year2026:hover {
+  transform: scale(1.1);
 }
 
-.ctaButton:hover {
-  background-color: #3a56d4;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(67, 97, 238, 0.3);
+/* Responsive font sizes */
+@media (max-width: 639px) {
+  .teacherName {
+    font-size: 2.25rem; /* text-4xl */
+  }
+  
+  .year2026 {
+    font-size: 3rem; /* text-5xl */
+  }
+  
+  .professionalTitle {
+    font-size: 1.25rem; /* text-xl */
+  }
+}
+
+@media (min-width: 640px) {
+  .teacherName {
+    font-size: 3rem; /* sm:text-5xl */
+  }
+  
+  .year2026 {
+    font-size: 3.75rem; /* sm:text-6xl */
+  }
+  
+  .professionalTitle {
+    font-size: 1.5rem; /* sm:text-2xl */
+  }
+}
+
+@media (min-width: 1024px) {
+  .teacherName {
+    font-size: 4.5rem; /* lg:text-7xl */
+  }
+  
+  .year2026 {
+    font-size: 4.5rem; /* lg:text-7xl */
+  }
+  
+  .professionalTitle {
+    font-size: 1.875rem; /* lg:text-3xl */
+  }
 }
 
 .secondaryButton {
