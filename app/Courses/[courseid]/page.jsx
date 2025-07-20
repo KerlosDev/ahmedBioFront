@@ -112,17 +112,24 @@ const CoursePage = () => {
                             id: chapter._id,
                             nameofchapter: chapter.title,
                             lessons: hasLessons
-                                ? chapter.lessons.map(lesson => ({
-                                    id: lesson._id,
-                                    name: lesson.title,
-                                    // Always include fileName from API
-                                    fileName: lesson.fileName,
-                                    // Only include link and fileUrl if enrolled
-                                    link: enrollmentStatus ? lesson.videoUrl : null,
-                                    fileUrl: enrollmentStatus ? lesson.fileUrl : null,
-                                    // Lock lessons for non-enrolled users
-                                    locked: !enrollmentStatus
-                                }))
+                                ? chapter.lessons.map(lesson => {
+                                    const isFreeLesson = lesson.isFree === true;
+                                    const isAccessible = enrollmentStatus || isFreeLesson;
+
+                                    return {
+                                        id: lesson._id,
+                                        name: lesson.title,
+                                        // Always include fileName from API
+                                        fileName: lesson.fileName,
+                                        // Include link and fileUrl if enrolled OR if lesson is free
+                                        link: isAccessible ? lesson.videoUrl : null,
+                                        fileUrl: isAccessible ? lesson.fileUrl : null,
+                                        // Lock lessons only if not enrolled AND not free
+                                        locked: !isAccessible,
+                                        // Add free lesson indicator
+                                        isFree: isFreeLesson
+                                    };
+                                })
                                 : enrollmentStatus
                                     ? [] // Empty array if enrolled but no lessons
                                     : [{ id: '1', name: 'لا توجد دروس متاحة', locked: true }] // Placeholder if not enrolled and no lessons
@@ -178,17 +185,20 @@ const CoursePage = () => {
         // ✅ لو نفس الدرس اللي شغال، بلاش تبعت تاني
         if (activeChapter === chapterIndex && activeLesson === lessonIndex) return;
 
+        const selectedLesson = courseVideoChapters[chapterIndex]?.lessons[lessonIndex];
+
+        // Check if user can access this lesson (enrolled OR lesson is free)
+        const canAccess = isEnrolled || selectedLesson?.isFree;
+        if (!canAccess) return;
+
         setActiveChapter(chapterIndex);
         setActiveLesson(lessonIndex);
         setActiveIndex2(100); // Reset exam selection
 
-        const selectedLesson = courseVideoChapters[chapterIndex]?.lessons[lessonIndex];
         const selectedChapter = chapterDetails[chapterIndex];
 
-        if (!selectedLesson || !selectedChapter || !courseid || !user?.token) return;
-
-        // Only record watch history if the lesson has a video URL
-        if (selectedLesson.link) {
+        // Only record watch history if user is logged in and lesson has a video URL
+        if (selectedLesson?.link && user?.token && courseid && selectedChapter) {
             try {
                 await axios.post(
                     `${process.env.NEXT_PUBLIC_API_URL}/watchHistory`,
@@ -204,8 +214,6 @@ const CoursePage = () => {
                         }
                     }
                 );
-
-
             } catch (error) {
                 console.error('❌ خطأ في تسجيل المشاهدة:', error);
             }
@@ -213,8 +221,10 @@ const CoursePage = () => {
     };
 
 
-    // Show locked content if no user or not enrolled
-    const isContentLocked = !user || !isEnrolled;
+    // Show locked content if no user or not enrolled, unless current lesson is free
+    const currentLesson = courseVideoChapters[activeChapter]?.lessons[activeLesson];
+    const isCurrentLessonFree = currentLesson?.isFree === true;
+    const isContentLocked = (!user || !isEnrolled) && !isCurrentLessonFree;
 
     // Combine all loading states
     const isPageLoading = loading || !isReady || !isLoaded;
@@ -228,7 +238,7 @@ const CoursePage = () => {
                 <div dir='rtl' className="min-h-screen   text-white font-arabicUI3">
                     {/* Animated Background */}
                     <div className="fixed inset-0 pointer-events-none overflow-hidden">
-                         <div className="absolute h-full w-full bg-[url('/grid.svg')] opacity-[0.03]" />
+                        <div className="absolute h-full w-full bg-[url('/grid.svg')] opacity-[0.03]" />
                         {/* Floating particles for better loading effect */}
                         <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400/30 rounded-full animate-ping"></div>
                         <div className="absolute top-3/4 right-1/3 w-1 h-1 bg-purple-400/40 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
@@ -697,7 +707,7 @@ const CoursePage = () => {
                                                     <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-white/20 shadow-xl">
                                                         <img
                                                             src="/prof.jpeg"
-                                                            alt="د/ احمد السيد"
+                                                            alt="د / احمد  السيد"
                                                             className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                                                         />
                                                         {/* Professional Overlay */}
@@ -721,7 +731,7 @@ const CoursePage = () => {
                                                 <div className="space-y-2">
                                                     <h4 className="text-xl font-bold text-white flex items-center gap-2">
                                                         <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
-                                                            د/ احمد السيد
+                                                            د / احمد السيد
                                                         </span>
                                                         {/* Verification Badge */}
                                                         <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
@@ -746,13 +756,13 @@ const CoursePage = () => {
                                                     </div>
                                                     <div className="flex flex-wrap gap-2">
                                                         <span className="px-2 py-1 bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-400/20 rounded-lg text-purple-300 text-xs font-medium">
-                                                            علم الأحياء
+                                                            البحتة
                                                         </span>
                                                         <span className="px-2 py-1 bg-gradient-to-r from-blue-500/10 to-teal-500/10 border border-blue-400/20 rounded-lg text-blue-300 text-xs font-medium">
-                                                            الجيولوجيا
+                                                            التطبيقية
                                                         </span>
                                                         <span className="px-2 py-1 bg-gradient-to-r from-teal-500/10 to-green-500/10 border border-teal-400/20 rounded-lg text-teal-300 text-xs font-medium">
-                                                            العلوم البيئية
+                                                            اخر
                                                         </span>
                                                     </div>
                                                 </div>
@@ -790,10 +800,24 @@ const CoursePage = () => {
                                                         <FaLock className="text-4xl text-gray-500" />
                                                     </div>
                                                     <div>
-                                                        <h3 className="text-xl font-bold text-white mb-2">المحتوى محمي</h3>
+                                                        <h3 className="text-xl font-bold text-white mb-2">
+                                                            {isContentLocked ? "المحتوى محمي" : "اختر درساً للبدء"}
+                                                        </h3>
                                                         <p className="text-gray-400 leading-relaxed max-w-md">
-                                                            {!user ? "قم بتسجيل الدخول للوصول إلى المحتوى التعليمي" :
-                                                                !isEnrolled ? "اشترك في الكورس للوصول إلى جميع الدروس والمحتوى" :
+                                                            {!user ?
+                                                                courseVideoChapters.some(chapter =>
+                                                                    chapter.lessons?.some(lesson => lesson.isFree)
+                                                                )
+                                                                    ? "قم بتسجيل الدخول للوصول إلى المحتوى التعليمي، أو شاهد الدروس المجانية المتاحة"
+                                                                    : "قم بتسجيل الدخول للوصول إلى المحتوى التعليمي"
+                                                                :
+                                                                !isEnrolled ?
+                                                                    courseVideoChapters.some(chapter =>
+                                                                        chapter.lessons?.some(lesson => lesson.isFree)
+                                                                    )
+                                                                        ? "يمكنك مشاهدة الدروس المجانية، أو اشترك في الكورس للوصول إلى جميع الدروس والمحتوى"
+                                                                        : "اشترك في الكورس للوصول إلى جميع الدروس والمحتوى"
+                                                                    :
                                                                     !currentVideoUrl && courseVideoChapters.length > 0 ? "لا يوجد فيديو متاح لهذا الدرس حالياً" :
                                                                         courseVideoChapters.length === 0 ? "لا توجد دروس متاحة في الوقت الحالي" :
                                                                             "اختر درساً من القائمة الجانبية لبدء المشاهدة"}
@@ -816,10 +840,20 @@ const CoursePage = () => {
                                         <h2 className="text-2xl font-bold text-white mb-3">
                                             {courseVideoChapters.length > 0 ? courseVideoChapters[activeChapter]?.nameofchapter : "المحتوى غير متاح"}
                                         </h2>
-                                        <h3 className="text-lg text-blue-300 mb-4 font-medium">
-                                            {courseVideoChapters.length > 0 && courseVideoChapters[activeChapter]?.lessons.length > 0
-                                                ? courseVideoChapters[activeChapter]?.lessons[activeLesson]?.name
-                                                : "يرجى الاشتراك لعرض محتوى الدروس"}
+                                        <h3 className="text-lg text-blue-300 mb-4 font-medium flex items-center gap-3">
+                                            <span>
+                                                {courseVideoChapters.length > 0 && courseVideoChapters[activeChapter]?.lessons.length > 0
+                                                    ? courseVideoChapters[activeChapter]?.lessons[activeLesson]?.name
+                                                    : "يرجى الاشتراك لعرض محتوى الدروس"}
+                                            </span>
+                                            {courseVideoChapters[activeChapter]?.lessons[activeLesson]?.isFree && !isEnrolled && (
+                                                <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-500/20 border border-green-400/30 rounded-lg text-green-300 text-sm font-bold">
+                                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                                                    </svg>
+                                                    درس مجاني
+                                                </span>
+                                            )}
                                         </h3>
                                         <div className="flex items-center gap-4 text-sm text-gray-400">
                                             <span className="flex items-center gap-2">
@@ -851,9 +885,23 @@ const CoursePage = () => {
                                             </div>
                                             محتويات الكورس
                                         </h3>
-                                        <p className="text-gray-300 text-sm mt-2">
-                                            {courseVideoChapters.length} فصل • {courseVideoChapters.reduce((total, chapter) => total + (chapter.lessons?.length || 0), 0)} درس
-                                        </p>
+                                        <div className="text-gray-300 text-sm mt-2">
+                                            <p>
+                                                {courseVideoChapters.length} فصل • {courseVideoChapters.reduce((total, chapter) => total + (chapter.lessons?.length || 0), 0)} درس
+                                            </p>
+                                            {!isEnrolled && courseVideoChapters.some(chapter =>
+                                                chapter.lessons?.some(lesson => lesson.isFree)
+                                            ) && (
+                                                    <p className="text-green-300 mt-1">
+                                                        <span className="inline-flex items-center gap-1">
+                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                                                            </svg>
+                                                            دروس مجانية متاحة
+                                                        </span>
+                                                    </p>
+                                                )}
+                                        </div>
                                     </div>
 
                                     {/* Content */}
@@ -881,21 +929,21 @@ const CoursePage = () => {
                                                                 <div key={lesson.id} className="space-y-3">
                                                                     {/* Lesson Button */}
                                                                     <button
-                                                                        onClick={() => isEnrolled && handleLessonClick(chapterIndex, lessonIndex)}
+                                                                        onClick={() => (isEnrolled || lesson.isFree) && handleLessonClick(chapterIndex, lessonIndex)}
                                                                         className={`w-full p-4 flex items-center gap-4 rounded-xl transition-all duration-300 group
                                                                             ${activeChapter === chapterIndex && activeLesson === lessonIndex
                                                                                 ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30 shadow-lg shadow-blue-500/10'
                                                                                 : 'hover:bg-white/5 border border-transparent'}`}
-                                                                        disabled={!isEnrolled || lesson.locked}
+                                                                        disabled={!isEnrolled && !lesson.isFree}
                                                                     >
                                                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
                                                                             ${activeChapter === chapterIndex && activeLesson === lessonIndex
                                                                                 ? 'bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg'
-                                                                                : !isEnrolled || lesson.locked
+                                                                                : !isEnrolled && !lesson.isFree
                                                                                     ? 'bg-gray-700/50'
                                                                                     : 'bg-gray-600/50 group-hover:bg-blue-500/20'}`}
                                                                         >
-                                                                            {!isEnrolled || lesson.locked ? (
+                                                                            {!isEnrolled && !lesson.isFree ? (
                                                                                 <FaLock className="text-gray-400 text-sm" />
                                                                             ) : (
                                                                                 <FaPlay className={`text-sm transition-colors
@@ -905,21 +953,31 @@ const CoursePage = () => {
                                                                             )}
                                                                         </div>
                                                                         <div className="text-right flex-1">
-                                                                            <p className={`text-sm font-medium transition-colors leading-relaxed
-                                                                                ${activeChapter === chapterIndex && activeLesson === lessonIndex
-                                                                                    ? 'text-blue-300'
-                                                                                    : lesson.locked
-                                                                                        ? 'text-gray-500'
-                                                                                        : 'text-gray-300 group-hover:text-white'}`}>
-                                                                                {lesson.name}
-                                                                            </p>
+                                                                            <div className="flex items-center gap-2 justify-start">
+                                                                                <p className={`text-sm font-medium transition-colors leading-relaxed
+                                                                                    ${activeChapter === chapterIndex && activeLesson === lessonIndex
+                                                                                        ? 'text-blue-300'
+                                                                                        : !isEnrolled && !lesson.isFree
+                                                                                            ? 'text-gray-500'
+                                                                                            : 'text-gray-300 group-hover:text-white'}`}>
+                                                                                    {lesson.name}
+                                                                                </p>
+                                                                                {lesson.isFree && !isEnrolled && (
+                                                                                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/20 border border-green-400/30 rounded-md text-green-300 text-xs font-bold">
+                                                                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                                                            <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                                                                                        </svg>
+                                                                                        مجاني
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
                                                                         </div>
                                                                     </button>
 
                                                                     {/* File Download */}
                                                                     {lesson && lesson.fileName && (
                                                                         <div className="mr-14">
-                                                                            {isEnrolled && lesson.fileUrl ? (
+                                                                            {(isEnrolled || lesson.isFree) && lesson.fileUrl ? (
                                                                                 <a
                                                                                     href={lesson.fileUrl}
                                                                                     target="_blank"
@@ -928,6 +986,11 @@ const CoursePage = () => {
                                                                                 >
                                                                                     <File className="w-5 h-5 group-hover:scale-110 transition-transform" />
                                                                                     <span>{lesson.fileName}</span>
+                                                                                    {lesson.isFree && !isEnrolled && (
+                                                                                        <span className="px-2 py-1 bg-green-500/20 border border-green-400/30 rounded-md text-green-300 text-xs font-bold">
+                                                                                            مجاني
+                                                                                        </span>
+                                                                                    )}
                                                                                     <svg className="w-4 h-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                                                                     </svg>
@@ -954,7 +1017,14 @@ const CoursePage = () => {
                                                     </svg>
                                                 </div>
                                                 <p className="text-gray-400 font-medium">
-                                                    {isEnrolled ? "لا توجد دروس متاحة حالياً" : "محتويات الكورس محمية - يرجى الاشتراك لعرض المحتوى"}
+                                                    {isEnrolled
+                                                        ? "لا توجد دروس متاحة حالياً"
+                                                        : courseVideoChapters.some(chapter =>
+                                                            chapter.lessons?.some(lesson => lesson.isFree)
+                                                        )
+                                                            ? "يمكنك مشاهدة الدروس المجانية - اشترك للوصول لجميع المحتويات"
+                                                            : "محتويات الكورس محمية - يرجى الاشتراك لعرض المحتوى"
+                                                    }
                                                 </p>
                                             </div>
                                         )}

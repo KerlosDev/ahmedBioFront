@@ -21,16 +21,32 @@ export default function AddEnrollment({ onEnrollmentAdded, onClose }) {
     const [searchStudent, setSearchStudent] = useState('');
     const [searchCourse, setSearchCourse] = useState('');
 
-    // Fetch students and courses on component mount
+    // Fetch courses on component mount (no students initially)
     useEffect(() => {
-        fetchStudents();
         fetchCourses();
+        setStudentsLoading(false); // Don't show loading initially
     }, []);
 
-    const fetchStudents = async () => {
+    // Debounced search for students - only search when user types
+    useEffect(() => {
+        const delayedSearch = setTimeout(() => {
+            if (searchStudent.trim().length >= 2) { // Only search when at least 2 characters
+                setStudentsLoading(true);
+                fetchStudents(searchStudent.trim());
+            } else {
+                setStudents([]); // Clear students when search is empty or too short
+                setStudentsLoading(false);
+            }
+        }, 500); // 500ms delay
+
+        return () => clearTimeout(delayedSearch);
+    }, [searchStudent]);
+
+    const fetchStudents = async (searchTerm) => {
         try {
             const token = Cookies.get('token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/students?limit=100`, {
+            // Only search with the provided term, don't load all students
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/students?limit=50&search=${encodeURIComponent(searchTerm)}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -50,7 +66,7 @@ export default function AddEnrollment({ onEnrollmentAdded, onClose }) {
     const fetchCourses = async () => {
         try {
             const token = Cookies.get('token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/course/allCourses`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/course`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -104,12 +120,6 @@ export default function AddEnrollment({ onEnrollmentAdded, onClose }) {
             setLoading(false);
         }
     };
-
-    const filteredStudents = students.filter(student =>
-        student.name?.toLowerCase().includes(searchStudent.toLowerCase()) ||
-        student.email?.toLowerCase().includes(searchStudent.toLowerCase()) ||
-        student.phoneNumber?.includes(searchStudent)
-    );
 
     const filteredCourses = courses.filter(course =>
         course.name?.toLowerCase().includes(searchCourse.toLowerCase())
@@ -172,11 +182,16 @@ export default function AddEnrollment({ onEnrollmentAdded, onClose }) {
                                     <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-white/50 group-focus-within:text-blue-400 transition-colors" size={16} />
                                     <input
                                         type="text"
-                                        placeholder="البحث عن طالب..."
+                                        placeholder="ابحث عن طالب (اسم، ايميل، تليفون)..."
                                         value={searchStudent}
                                         onChange={(e) => setSearchStudent(e.target.value)}
                                         className="w-full bg-white/10 border border-white/20 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-3 sm:py-4 pl-10 sm:pl-14 text-white placeholder-white/50 outline-none focus:border-blue-500 focus:bg-white/15 transition-all duration-200 text-sm sm:text-base"
                                     />
+                                    {studentsLoading && searchStudent && (
+                                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                            <div className="animate-spin h-4 w-4 border-2 border-blue-400 border-t-transparent rounded-full"></div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Students List */}
@@ -186,24 +201,29 @@ export default function AddEnrollment({ onEnrollmentAdded, onClose }) {
                                             <div className="p-4 sm:p-6 text-center">
                                                 <div className="inline-flex items-center gap-2 sm:gap-3 text-white/70 text-sm sm:text-base">
                                                     <div className="animate-spin h-4 w-4 sm:h-5 sm:w-5 border-2 border-blue-400 border-t-transparent rounded-full"></div>
-                                                    جاري تحميل الطلاب...
+                                                    جاري البحث...
                                                 </div>
                                             </div>
-                                        ) : filteredStudents.length === 0 ? (
+                                        ) : searchStudent.trim().length < 2 ? (
+                                            <div className="p-4 sm:p-6 text-center text-white/60">
+                                                <Search className="mx-auto mb-2 text-blue-400" size={20} />
+                                                <p className="text-sm sm:text-base">ابدأ بكتابة اسم الطالب للبحث</p>
+                                                <p className="text-xs sm:text-sm text-white/40 mt-1">على الأقل حرفين</p>
+                                            </div>
+                                        ) : students.length === 0 ? (
                                             <div className="p-4 sm:p-6 text-center text-white/60">
                                                 <AlertCircle className="mx-auto mb-2 text-yellow-400" size={20} />
                                                 <p className="text-sm sm:text-base">لا توجد نتائج للبحث</p>
                                             </div>
                                         ) : (
-                                            filteredStudents.map((student, index) => (
+                                            students.map((student, index) => (
                                                 <div
                                                     key={student._id}
                                                     onClick={() => setFormData(prev => ({ ...prev, studentId: student._id }))}
-                                                    className={`p-3 sm:p-4 lg:p-6 cursor-pointer hover:bg-white/10 transition-all duration-200 border-b border-white/10 last:border-b-0 ${
-                                                        formData.studentId === student._id 
-                                                            ? 'bg-gradient-to-r from-blue-500/30 to-indigo-500/20 border-blue-500/50' 
+                                                    className={`p-3 sm:p-4 lg:p-6 cursor-pointer hover:bg-white/10 transition-all duration-200 border-b border-white/10 last:border-b-0 ${formData.studentId === student._id
+                                                            ? 'bg-gradient-to-r from-blue-500/30 to-indigo-500/20 border-blue-500/50'
                                                             : 'hover:scale-[1.01]'
-                                                    } ${index === 0 ? 'rounded-t-xl sm:rounded-t-2xl' : ''} ${index === filteredStudents.length - 1 ? 'rounded-b-xl sm:rounded-b-2xl' : ''}`}
+                                                        } ${index === 0 ? 'rounded-t-xl sm:rounded-t-2xl' : ''} ${index === students.length - 1 ? 'rounded-b-xl sm:rounded-b-2xl' : ''}`}
                                                 >
                                                     <div className="flex items-center justify-between">
                                                         <div className="space-y-2 sm:space-y-3 flex-1 min-w-0">
@@ -277,11 +297,10 @@ export default function AddEnrollment({ onEnrollmentAdded, onClose }) {
                                                 <div
                                                     key={course._id}
                                                     onClick={() => setFormData(prev => ({ ...prev, courseId: course._id }))}
-                                                    className={`p-3 sm:p-4 lg:p-6 cursor-pointer hover:bg-white/10 transition-all duration-200 border-b border-white/10 last:border-b-0 ${
-                                                        formData.courseId === course._id 
-                                                            ? 'bg-gradient-to-r from-emerald-500/30 to-teal-500/20 border-emerald-500/50' 
+                                                    className={`p-3 sm:p-4 lg:p-6 cursor-pointer hover:bg-white/10 transition-all duration-200 border-b border-white/10 last:border-b-0 ${formData.courseId === course._id
+                                                            ? 'bg-gradient-to-r from-emerald-500/30 to-teal-500/20 border-emerald-500/50'
                                                             : 'hover:scale-[1.01]'
-                                                    } ${index === 0 ? 'rounded-t-xl sm:rounded-t-2xl' : ''} ${index === filteredCourses.length - 1 ? 'rounded-b-xl sm:rounded-b-2xl' : ''}`}
+                                                        } ${index === 0 ? 'rounded-t-xl sm:rounded-t-2xl' : ''} ${index === filteredCourses.length - 1 ? 'rounded-b-xl sm:rounded-b-2xl' : ''}`}
                                                 >
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 flex-1 min-w-0">

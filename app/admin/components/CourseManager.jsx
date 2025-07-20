@@ -16,7 +16,7 @@ const CourseManager = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filter, setFilter] = useState('all'); // all, active, draft
+    const [filter, setFilter] = useState('all'); // all, active, draft, scheduled
     const [showForm, setShowForm] = useState(false);
     const [editingCourse, setEditingCourse] = useState(null);
     const [newCourse, setNewCourse] = useState({
@@ -27,7 +27,10 @@ const CourseManager = () => {
         level: '',
         imageUrl: '',
         imageFile: null,
-        isDraft: false // <-- Ensure isDraft is always present
+        isDraft: false,
+        isScheduled: false,
+        scheduledPublishDate: '',
+        publishStatus: 'draft'
     });
     const [uploadProgress, setUploadProgress] = useState(0);
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -83,7 +86,7 @@ const CourseManager = () => {
     }, []); const fetchCourses = async () => {
         try {
             const token = Cookies.get('token');
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/course`, {
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/course/allCourses`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -138,6 +141,21 @@ const CourseManager = () => {
             setCurrentStep(prev => prev + 1);
             return;
         }
+
+        // Validation for scheduled courses
+        if (newCourse.isScheduled) {
+            if (!newCourse.scheduledPublishDate) {
+                toast.error('يرجى تحديد تاريخ ووقت النشر المجدول');
+                return;
+            }
+            const scheduledDate = new Date(newCourse.scheduledPublishDate);
+            const now = new Date();
+            if (scheduledDate <= now) {
+                toast.error('يجب أن يكون تاريخ النشر المجدول في المستقبل');
+                return;
+            }
+        }
+
         setUploadProgress(0);
         updateProcessingStatus(1, 'جاري تجهيز البيانات...', 10);
 
@@ -150,7 +168,10 @@ const CourseManager = () => {
             formData.append('price', newCourse.price);
             formData.append('isFree', newCourse.isFree);
             formData.append('level', newCourse.level);
-            formData.append('isDraft', newCourse.isDraft); // <-- Add this line
+            formData.append('isDraft', newCourse.isDraft);
+            formData.append('isScheduled', newCourse.isScheduled);
+            formData.append('scheduledPublishDate', newCourse.scheduledPublishDate);
+            formData.append('publishStatus', newCourse.publishStatus);
             formData.append("exams", JSON.stringify(selectedExams.map(exam => exam._id)));
 
             if (newCourse.imageFile) {
@@ -193,7 +214,10 @@ const CourseManager = () => {
                     level: '',
                     imageUrl: '',
                     imageFile: null,
-                    isDraft: false // <-- Reset isDraft
+                    isDraft: false,
+                    isScheduled: false,
+                    scheduledPublishDate: '',
+                    publishStatus: 'draft'
                 });
                 setUploadProgress(0);
                 fetchCourses();
@@ -243,7 +267,10 @@ const CourseManager = () => {
                 level: data.level || '',
                 imageUrl: data.imageUrl || '',
                 imageFile: null,
-                isDraft: data.isDraft ?? false // <-- Always set isDraft
+                isDraft: data.isDraft ?? false,
+                isScheduled: data.isScheduled ?? false,
+                scheduledPublishDate: data.scheduledPublishDate || '',
+                publishStatus: data.publishStatus || 'draft'
             });
             setSelectedExams(data.exams || []);
             setCurrentStep(1); // Reset to first step when opening a course
@@ -266,8 +293,9 @@ const CourseManager = () => {
         const matchesSearch = course.name?.toLowerCase().includes(searchTerm.toLowerCase());
         // Filter by status
         let matchesFilter = true;
-        if (filter === "active") matchesFilter = !course.isDraft;
+        if (filter === "active") matchesFilter = !course.isDraft && course.publishStatus !== 'scheduled';
         if (filter === "draft") matchesFilter = !!course.isDraft;
+        if (filter === "scheduled") matchesFilter = course.publishStatus === 'scheduled';
         return matchesSearch && matchesFilter;
     });
 
@@ -452,6 +480,41 @@ const CourseManager = () => {
         }
     };
 
+    const handleToggleLessonFree = async (chapterId, lessonId, isFree) => {
+        try {
+            const token = Cookies.get('token');
+            await axios.put(
+                `${process.env.NEXT_PUBLIC_API_URL}/course/chapter/${chapterId}/lesson/${lessonId}/toggle-free`,
+                { isFree },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            // Update local state
+            setCourseChapters(prevChapters =>
+                prevChapters.map(chapter => {
+                    if (chapter._id === chapterId) {
+                        return {
+                            ...chapter,
+                            lessons: chapter.lessons.map(lesson =>
+                                lesson._id === lessonId ? { ...lesson, isFree } : lesson
+                            )
+                        };
+                    }
+                    return chapter;
+                })
+            );
+
+            toast.success(`تم ${isFree ? 'جعل' : 'إلغاء'} الدرس مجاني بنجاح`);
+        } catch (error) {
+            console.error('Error toggling lesson free status:', error);
+            toast.error('حدث خطأ في تحديث حالة الدرس');
+        }
+    };
+
     const handleExamSelection = (examId) => {
         const exam = availableExams.find(e => e._id === examId);
         if (exam) {
@@ -572,7 +635,7 @@ const CourseManager = () => {
                         <div className="w-12 h-0.5 bg-gray-700" />
                         <StepIndicator
                             step={3}
-                            label="الامتحانات والاعدادات'"
+                            label="الامتحانات والنشر"
                             isActive={currentStep === 3}
                             isCompleted={currentStep > 3}
                         />
@@ -658,11 +721,19 @@ const CourseManager = () => {
                     },
                     {
                         label: 'الكورسات المنشورة',
-                        value: courses.filter(c => !c.isDraft).length,
+                        value: courses.filter(c => !c.isDraft && c.publishStatus !== 'scheduled').length,
                         icon: FaVideo,
                         color: 'from-green-600/20 to-green-400/20',
                         iconColor: 'text-green-400',
                         borderColor: 'border-green-500/20'
+                    },
+                    {
+                        label: 'المجدولة للنشر',
+                        value: courses.filter(c => c.publishStatus === 'scheduled').length,
+                        icon: FaClock,
+                        color: 'from-purple-600/20 to-purple-400/20',
+                        iconColor: 'text-purple-400',
+                        borderColor: 'border-purple-500/20'
                     },
                     {
                         label: 'المسودات',
@@ -725,9 +796,10 @@ const CourseManager = () => {
                     onChange={(e) => setFilter(e.target.value)}
                     className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all [&>option]:text-black"
                 >
-                    <option value="all">جميع الكورسات</option>
-                    <option value="active">الكورسات النشطة</option>
-                    <option value="draft">المسودات</option>
+                    <option className=' text-black'  value="all">جميع الكورسات</option>
+                    <option  className=' text-black' value="active">الكورسات النشطة</option>
+                    <option   className=' text-black'value="draft">المسودات</option>
+                    <option   className=' text-black' value="scheduled">المجدولة للنشر</option>
                 </select>
             </div>
 
@@ -755,12 +827,30 @@ const CourseManager = () => {
                             <div className="absolute top-4 left-4 z-20 transform group-hover:-translate-x-1 transition-transform duration-300">
                                 <div className={`px-3 py-1.5 rounded-full text-xs font-arabicUI3 flex items-center gap-2
                                     backdrop-blur-md shadow-lg border transition-colors duration-300
-                                    ${course.isDraft ?
-                                        'bg-yellow-500/20 text-yellow-300 border-yellow-400/30 group-hover:bg-yellow-500/30' :
-                                        'bg-emerald-500/20 text-emerald-300 border-emerald-400/30 group-hover:bg-emerald-500/30'}`}>
-                                    <span className={`w-2 h-2 rounded-full ${course.isDraft ? 'bg-yellow-400' : 'bg-emerald-400'} animate-pulse`}></span>
-                                    {course.isDraft ? 'مسودة' : 'منشور'}
+                                    ${course.publishStatus === 'scheduled' ?
+                                        'bg-purple-500/20 text-purple-300 border-purple-400/30 group-hover:bg-purple-500/30' :
+                                        course.isDraft ?
+                                            'bg-yellow-500/20 text-yellow-300 border-yellow-400/30 group-hover:bg-yellow-500/30' :
+                                            'bg-emerald-500/20 text-emerald-300 border-emerald-400/30 group-hover:bg-emerald-500/30'}`}>
+                                    <span className={`w-2 h-2 rounded-full animate-pulse ${course.publishStatus === 'scheduled' ? 'bg-purple-400' :
+                                            course.isDraft ? 'bg-yellow-400' : 'bg-emerald-400'
+                                        }`}></span>
+                                    {course.publishStatus === 'scheduled' ? 'مجدول' :
+                                        course.isDraft ? 'مسودة' : 'منشور'}
                                 </div>
+
+                                {/* Scheduled Date Badge */}
+                                {course.publishStatus === 'scheduled' && course.scheduledPublishDate && (
+                                    <div className="mt-2 px-2 py-1 rounded-md text-xs bg-purple-500/10 text-purple-300 border border-purple-400/20">
+                                        <FaClock className="inline mr-1" size={10} />
+                                        {new Date(course.scheduledPublishDate).toLocaleDateString('ar-EG', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Price Badge */}
@@ -923,10 +1013,10 @@ const CourseManager = () => {
                                                              focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all"
                                                     required
                                                 >
-                                                    <option value="">اختر المستوى</option>
-                                                    <option value="الصف الأول الثانوي">الصف الأول الثانوي</option>
-                                                    <option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
-                                                    <option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
+                                                    <option   className=' text-black' value="">اختر المستوى</option>
+                                                    <option className=' text-black' value="الصف الأول الثانوي">الصف الأول الثانوي</option>
+                                                    <option  className=' text-black' value="الصف الثاني الثانوي">الصف الثاني الثانوي</option>
+                                                    <option  className=' text-black' value="الصف الثالث الثانوي">الصف الثالث الثانوي</option>
                                                 </select>
                                             </div>
 
@@ -1056,11 +1146,28 @@ const CourseManager = () => {
                                                             <div className="pl-6 border-r border-white/10 space-y-3">
                                                                 {chapter.lessons?.map((lesson, lessonIndex) => (
                                                                     <div key={lesson._id || `temp-lesson-${chapter._id}-${lessonIndex}`} className="flex justify-between items-center">
-                                                                        <span className="text-gray-400 flex items-center gap-2">
-                                                                            <FaVideo size={12} />
-                                                                            {lesson.title}
-                                                                        </span>
                                                                         <div className="flex items-center gap-2">
+                                                                            <FaVideo size={12} />
+                                                                            <span className="text-gray-400">{lesson.title}</span>
+                                                                            {lesson.isFree && (
+                                                                                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+                                                                                    مجاني
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <button 
+                                                                                type="button" 
+                                                                                onClick={() => handleToggleLessonFree(chapter._id, lesson._id, !lesson.isFree)}
+                                                                                className={`p-1.5 rounded-lg transition-colors ${
+                                                                                    lesson.isFree 
+                                                                                        ? 'text-green-400 hover:bg-green-500/10' 
+                                                                                        : 'text-gray-400 hover:bg-gray-500/10'
+                                                                                }`}
+                                                                                title={lesson.isFree ? 'إلغاء المجاني' : 'جعل مجاني'}
+                                                                            >
+                                                                                <FaBookmark size={12} />
+                                                                            </button>
                                                                             <button type="button" onClick={() => setEditingLesson({ ...lesson, chapterId: chapter._id })} className="p-1.5 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
                                                                                 <FaEdit size={12} />
                                                                             </button>
@@ -1190,6 +1297,93 @@ const CourseManager = () => {
                                                     </label>
                                                 </div>
                                             </div>
+                                        </div>
+
+                                        {/* Scheduling Section */}
+                                        <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 rounded-xl border border-purple-500/20 p-4">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 rounded-lg bg-purple-500/20">
+                                                        <FaClock className="text-purple-400 text-lg" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-white font-arabicUI3">جدولة النشر</h4>
+                                                        <p className="text-gray-400 text-sm">نشر الكورس في وقت محدد</p>
+                                                    </div>
+                                                </div>
+                                                <label className="relative inline-flex items-center cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={newCourse.isScheduled}
+                                                        onChange={(e) => {
+                                                            const isScheduled = e.target.checked;
+                                                            setNewCourse({
+                                                                ...newCourse,
+                                                                isScheduled,
+                                                                publishStatus: isScheduled ? 'scheduled' : (newCourse.isDraft ? 'draft' : 'published')
+                                                            });
+                                                        }}
+                                                        className="sr-only peer"
+                                                    />
+                                                    <div className="w-14 h-7 bg-gray-600 rounded-full peer peer-checked:bg-purple-500 relative 
+                                                                  after:content-[''] after:absolute after:top-0.5 after:left-[4px] 
+                                                                  after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all 
+                                                                  peer-checked:after:translate-x-full" />
+                                                </label>
+                                            </div>
+                                            {newCourse.isScheduled && (
+                                                <div className="space-y-4">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                                                تاريخ النشر
+                                                            </label>
+                                                            <input
+                                                                type="date"
+                                                                value={newCourse.scheduledPublishDate ? newCourse.scheduledPublishDate.split('T')[0] : ''}
+                                                                onChange={(e) => {
+                                                                    const date = e.target.value;
+                                                                    const time = newCourse.scheduledPublishDate ?
+                                                                        newCourse.scheduledPublishDate.split('T')[1] || '00:00' : '00:00';
+                                                                    setNewCourse({
+                                                                        ...newCourse,
+                                                                        scheduledPublishDate: `${date}T${time}`
+                                                                    });
+                                                                }}
+                                                                min={new Date().toISOString().split('T')[0]}
+                                                                className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                                                                وقت النشر
+                                                            </label>
+                                                            <input
+                                                                type="time"
+                                                                value={newCourse.scheduledPublishDate ?
+                                                                    newCourse.scheduledPublishDate.split('T')[1] || '00:00' : '00:00'}
+                                                                onChange={(e) => {
+                                                                    const time = e.target.value;
+                                                                    const date = newCourse.scheduledPublishDate ?
+                                                                        newCourse.scheduledPublishDate.split('T')[0] : new Date().toISOString().split('T')[0];
+                                                                    setNewCourse({
+                                                                        ...newCourse,
+                                                                        scheduledPublishDate: `${date}T${time}`
+                                                                    });
+                                                                }}
+                                                                className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    {newCourse.scheduledPublishDate && (
+                                                        <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3">
+                                                            <p className="text-purple-300 text-sm">
+                                                                سيتم نشر الكورس في: {new Date(newCourse.scheduledPublishDate).toLocaleString('ar-EG')}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Exams Section */}
@@ -1412,6 +1606,18 @@ const CourseManager = () => {
                                 className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white"
                                 placeholder="رابط الملف (اختياري)"
                             />
+                            <div className="flex items-center gap-3">
+                                <input
+                                    type="checkbox"
+                                    id="lessonFree"
+                                    checked={editingLesson.isFree || false}
+                                    onChange={(e) => setEditingLesson({ ...editingLesson, isFree: e.target.checked })}
+                                    className="w-5 h-5 rounded border border-white/10 bg-white/5 checked:bg-green-500 checked:border-green-500"
+                                />
+                                <label htmlFor="lessonFree" className="text-white font-arabicUI3">
+                                    درس مجاني (متاح للجميع)
+                                </label>
+                            </div>
                             <div className="flex justify-end gap-3">
                                 <button
                                     onClick={() => setEditingLesson(null)}
