@@ -102,7 +102,12 @@ const SignInPage = () => {
                     router.replace("/");
                 }, data.wasLoggedOutFromOtherDevice ? 2000 : 100);
             } else {
-                setError(data.message || "❌ البريد الإلكتروني أو كلمة المرور غير صحيحة");
+                // Check if user is banned
+                if (data.code === 'USER_BANNED') {
+                    setError(`🚫 ${data.message}`);
+                } else {
+                    setError(data.message || "❌ البريد الإلكتروني أو كلمة المرور غير صحيحة");
+                }
             }
 
         } catch (err) {

@@ -30,6 +30,36 @@ const Courses = () => {
         setEnrollmentStatus(enrollmentMap);
 
         getAllCourses();
+        // Listen for localStorage changes (for cross-tab synchronization)
+        const handleStorageChange = (e) => {
+            if (e.key === 'enrolledCourses') {
+                const updatedCourses = JSON.parse(e.newValue || '[]');
+                const updatedEnrollmentMap = {};
+                updatedCourses.forEach(courseId => {
+                    updatedEnrollmentMap[courseId] = true;
+                });
+                setEnrollmentStatus(updatedEnrollmentMap);
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        // Also listen for a custom event for same-tab updates
+        const handleEnrollmentUpdate = () => {
+            const enrolledCourses = JSON.parse(localStorage.getItem('enrolledCourses') || '[]');
+            const enrollmentMap = {};
+            enrolledCourses.forEach(courseId => {
+                enrollmentMap[courseId] = true;
+            });
+            setEnrollmentStatus(enrollmentMap);
+        };
+
+        window.addEventListener('enrollmentUpdated', handleEnrollmentUpdate);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('enrollmentUpdated', handleEnrollmentUpdate);
+        };
     }, []);
 
     const getAllCourses = async () => {
@@ -221,7 +251,7 @@ const Courses = () => {
                                     <div className="flex flex-col space-y-2">
                                         {[1, 2].map((j) => (
                                             <div key={j} className={`flex items-center gap-2 py-1.5 px-3 rounded-lg border-r-2 ${j === 1 ? 'bg-gradient-to-r from-blue-50/80 to-transparent dark:from-blue-900/20 border-blue-500/50'
-                                                    : 'bg-gradient-to-r from-emerald-50/80 to-transparent dark:from-emerald-900/20 border-emerald-500/50'
+                                                : 'bg-gradient-to-r from-emerald-50/80 to-transparent dark:from-emerald-900/20 border-emerald-500/50'
                                                 }`}>
                                                 <div className={`w-4 h-4 rounded animate-pulse ${j === 1 ? 'bg-blue-500/40' : 'bg-emerald-500/40'
                                                     }`}></div>
@@ -404,7 +434,7 @@ const Courses = () => {
                                         {item.level}
                                     </div>
                                 </div>
-                               
+
                                 {/* Course Title - Overlay */}
                                 <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-blue-500/10 to-transparent" />
                                 {/* Math Icon */}
@@ -512,9 +542,7 @@ const Courses = () => {
                                     </Link>
                                     {/* Subscribe Button - Takes 1/3 width */}
                                     {!item.isFree && (
-                                        <button
-                                            onClick={() => handleSubscribe(item?._id)}
-                                            disabled={enrollmentChecking}
+                                        <Link href={`${enrollmentStatus[item._id] ? `/Courses/${item?._id}` : `/payment/${item?._id}`}`}
                                             className="flex-1 relative group"
                                         >
                                             {/* Neumorphic base - changes color based on enrollment status */}
@@ -533,12 +561,16 @@ const Courses = () => {
                                                 } opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-sm`}></div>
 
                                             {/* Content container */}
+
                                             <div className="relative flex items-center justify-center gap-3 px-6 py-3.5">
+
+
+
                                                 <span className={`font-arabicUI2 text-lg ${enrollmentStatus[item._id]
                                                     ? 'text-green-700 dark:text-blue-200 group-hover:text-green-600 dark:group-hover:text-green-300'
                                                     : 'text-slate-700 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400'
                                                     } transition-colors duration-300`}>
-                                                    {enrollmentStatus[item._id] ? 'مشترك بالفعل' : 'اشترك الآن'}
+                                                    {enrollmentStatus[item._id] ? 'تم الاشتراك' : 'اشترك الآن'}
                                                 </span>
 
                                                 <div className="relative">
@@ -560,7 +592,7 @@ const Courses = () => {
                                                         } opacity-0 group-hover:opacity-100 scale-150 transition-all duration-300`}></div>
                                                 </div>
                                             </div>
-                                        </button>
+                                        </Link>
                                     )}
                                 </div>
                             </div>

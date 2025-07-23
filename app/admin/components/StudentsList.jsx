@@ -115,7 +115,7 @@ export default function StudentsList() {
             if (!token) {
                 throw new Error('No authentication token found');
             }
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/students?page=${page}&limit=${limit}&search=${searchQuery}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/students?page=${page}&limit=${limit}&search=${searchQuery}&filterStatus=${filterStatus}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -145,7 +145,14 @@ export default function StudentsList() {
     // Effect to fetch students
     useEffect(() => {
         fetchStudents();
-    }, [page, limit, searchQuery]);
+    }, [page, limit, searchQuery, filterStatus]);
+
+    // Reset to page 1 when filter changes
+    useEffect(() => {
+        if (page !== 1) {
+            setPage(1);
+        }
+    }, [filterStatus]);
 
     const toggleBanStatus = async (studentId, reason = '') => {
         try {
@@ -234,14 +241,8 @@ export default function StudentsList() {
         }
     };
 
-    // Filter students
-    const filteredStudents = students.filter(student => {
-        const matchesStatus = filterStatus === 'all' ||
-            (filterStatus === 'banned' && student.isBanned) ||
-            (filterStatus === 'active' && !student.isBanned);
-
-        return matchesStatus;
-    });
+    // Filter students - now handled by backend, so we just use the students directly
+    const filteredStudents = students;
 
     // Format date
     const formatDate = (dateString) => {

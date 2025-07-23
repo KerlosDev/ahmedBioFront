@@ -59,11 +59,21 @@ export const useAuth = () => {
             setIsAuthenticated(false);
             setIsLoading(false);
         };
+
+        // Listen for user banned event
+        const handleUserBanned = () => {
+            setUser(null);
+            setIsAuthenticated(false);
+            setIsLoading(false);
+        };
+
         window.addEventListener('session_invalidated', handleSessionInvalidated);
+        window.addEventListener('user_banned', handleUserBanned);
 
         return () => {
             unsubscribe();
             window.removeEventListener('session_invalidated', handleSessionInvalidated);
+            window.removeEventListener('user_banned', handleUserBanned);
         };
     }, []);
 

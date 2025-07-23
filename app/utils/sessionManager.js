@@ -87,8 +87,8 @@ class SessionManager {
         try {
             const response = await fetch(url, defaultOptions);
 
-            // Check if session is invalid
-            if (response.status === 401) {
+            // Check if session is invalid or user is banned
+            if (response.status === 401 || response.status === 403) {
                 const data = await response.json();
 
                 // Check if it's a session invalidation due to login from another device
@@ -96,11 +96,17 @@ class SessionManager {
                     this.handleSessionInvalidation(data.message);
                     throw new Error('SESSION_INVALID');
                 }
+
+                // Check if user is banned
+                if (data.code === 'USER_BANNED') {
+                    this.handleUserBanned(data.message);
+                    throw new Error('USER_BANNED');
+                }
             }
 
             return response;
         } catch (error) {
-            if (error.message === 'SESSION_INVALID') {
+            if (error.message === 'SESSION_INVALID' || error.message === 'USER_BANNED') {
                 throw error;
             }
             throw new Error(`Network error: ${error.message}`);
@@ -125,6 +131,28 @@ class SessionManager {
         setTimeout(() => {
             window.location.replace('/sign-in');
         }, 1500); // Reduced to 1.5 seconds for faster redirect
+    }
+
+    // Handle user banned
+    handleUserBanned(message) {
+        // Clear current session
+        this.clearSession();
+
+        // Show ban notification to user
+        this.showBanNotification(message);
+
+        // Trigger storage event for immediate UI updates
+        window.dispatchEvent(new Event('storage'));
+
+        // Trigger custom event for components listening
+        window.dispatchEvent(new CustomEvent('user_banned', {
+            detail: { message }
+        }));
+
+        // Immediate redirect using window.location
+        setTimeout(() => {
+            window.location.replace('/sign-in');
+        }, 2000); // 2 seconds to read the ban message
     }    // Show session invalidation notification
     showSessionInvalidationNotification(message) {
         // Create a toast notification
@@ -161,6 +189,44 @@ class SessionManager {
                 }
             }, 300);
         }, 1500);
+    }
+
+    // Show ban notification
+    showBanNotification(message) {
+        // Create a toast notification for banned users
+        const notification = document.createElement('div');
+        notification.className = `
+            fixed top-4 right-4 z-[9999] bg-red-600 text-white p-4 rounded-lg shadow-lg
+            transform transition-all duration-300 ease-in-out max-w-md
+        `;
+        notification.innerHTML = `
+            <div class="flex items-start gap-3">
+                <div class="flex-shrink-0">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <div class="font-arabicUI2">
+                    <p class="font-semibold text-lg">تم حظر حسابك</p>
+                    <p class="text-sm mt-1">${message || 'تم حظر حسابك من المنصة. يرجى التواصل مع الإدارة.'}</p>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Show immediately
+        notification.style.transform = 'translateX(0)';
+
+        // Remove after 2 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 2000);
     }
 
     // Logout with server notification
@@ -237,6 +303,9 @@ class SessionManager {
         } catch (error) {
             if (error.message === 'SESSION_INVALID') {
                 return false;
+            }
+            if (error.message === 'USER_BANNED') {
+                return false; // Session validation fails for banned users
             }
             // For other errors, assume session is still valid to avoid unnecessary logouts
             console.error('Session validation network error:', error);
