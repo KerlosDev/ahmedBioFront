@@ -3,8 +3,10 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AiOutlineClockCircle, AiOutlineCheckCircle, AiOutlineCloseCircle } from 'react-icons/ai';
+import { FiHelpCircle, FiCheck, FiArrowLeft, FiArrowRight } from 'react-icons/fi';
+import { FaRegQuestionCircle, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { BsBookmarkCheck, BsCheckCircleFill, BsXCircleFill } from 'react-icons/bs';
 import Swal from 'sweetalert2';
-import { FiHelpCircle, FiCheck } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import Cookies from 'js-cookie';
 import axios from 'axios';
@@ -268,46 +270,46 @@ const QuizData = ({ params }) => {
 
     if (quizComplete) {
         return (
-            <div dir='rtl' className="min-h-screen bg-slate-950 text-slate-200 p-8">
+            <div dir='rtl' className="min-h-screen bg-slate-950 text-slate-200 p-4 sm:p-8">
                 <div className="max-w-6xl mx-auto">
-                    <div className="bg-slate-900/50 backdrop-blur-lg rounded-2xl p-10 shadow-xl border border-slate-800">
+                    <div className="bg-slate-900/50 backdrop-blur-lg rounded-2xl p-6 sm:p-10 shadow-xl border border-slate-800">
                         <div className="max-w-3xl mx-auto">
-                            <h2 className="text-4xl font-arabicUI3 text-center mb-12 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+                            <h2 className="text-3xl sm:text-4xl font-arabicUI3 text-center mb-6 sm:mb-12 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
                                 نتائج الاختبار
                             </h2>
 
-                            <div className="relative bg-slate-800/50 rounded-xl p-8 mb-12">
-                                <div className="grid grid-cols-3 gap-6 text-center">
-                                    <div className="p-6">
-                                        <div className="text-5xl font-arabicUI3 mb-2 text-blue-400">
+                            <div className="relative bg-slate-800/50 rounded-xl p-4 sm:p-8 mb-8 sm:mb-12">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-center">
+                                    <div className="p-3 sm:p-6 bg-slate-800/30 rounded-xl">
+                                        <div className="text-3xl sm:text-5xl font-arabicUI3 mb-1 sm:mb-2 text-blue-400">
                                             {results.percentage.toFixed(0)}%
                                         </div>
-                                        <div className="text-slate-400">النسبة المئوية</div>
+                                        <div className="text-sm sm:text-base text-slate-400">النسبة المئوية</div>
                                     </div>
-                                    <div className="p-6 border-x border-slate-700">
-                                        <div className="text-5xl font-arabicUI3 mb-2 text-emerald-400">
+                                    <div className="p-3 sm:p-6 bg-slate-800/30 rounded-xl border-y sm:border-y-0 sm:border-x border-slate-700">
+                                        <div className="text-3xl sm:text-5xl font-arabicUI3 mb-1 sm:mb-2 text-emerald-400">
                                             {results.score}
                                         </div>
-                                        <div className="text-slate-400">الإجابات الصحيحة</div>
+                                        <div className="text-sm sm:text-base text-slate-400">الإجابات الصحيحة</div>
                                     </div>
-                                    <div className="p-6">
-                                        <div className="text-5xl font-arabicUI3 mb-2 text-slate-400">
+                                    <div className="p-3 sm:p-6 bg-slate-800/30 rounded-xl">
+                                        <div className="text-3xl sm:text-5xl font-arabicUI3 mb-1 sm:mb-2 text-slate-400">
                                             {results.total}
                                         </div>
-                                        <div className="text-slate-400">مجموع الأسئلة</div>
+                                        <div className="text-sm sm:text-base text-slate-400">مجموع الأسئلة</div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="space-y-6">
+                            <div className="space-y-4 sm:space-y-6">
                                 {results.details.map((result, index) => (
                                     <div key={index}
-                                        className="bg-slate-800/30 rounded-lg p-6 transition-all duration-300 hover:bg-slate-800/50">
-                                        <div className="flex flex-col gap-4">
+                                        className="bg-slate-800/30 rounded-lg p-4 sm:p-6 transition-all duration-300 hover:bg-slate-800/50">
+                                        <div className="flex flex-col gap-3 sm:gap-4">
                                             {/* Question Image */}
                                             {quiz.questions[index]?.imageUrl && (
                                                 <div className="w-full">
-                                                    <div className="relative h-48 rounded-lg overflow-hidden">
+                                                    <div className="relative h-32 sm:h-48 rounded-lg overflow-hidden">
                                                         <Image
                                                             src={quiz.questions[index].imageUrl}
                                                             alt="Question Image"
@@ -320,25 +322,25 @@ const QuizData = ({ params }) => {
                                             )}
 
                                             {/* Question Details */}
-                                            <div className="flex items-start gap-4">
-                                                <div className={`p-3 rounded-lg ${result.isCorrect ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
+                                            <div className="flex flex-col sm:flex-row items-start gap-4">
+                                                <div className={`p-2 sm:p-3 rounded-lg ${result.isCorrect ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
                                                     }`}>
                                                     {result.isCorrect ?
                                                         <AiOutlineCheckCircle size={24} /> :
                                                         <AiOutlineCloseCircle size={24} />
                                                     }
                                                 </div>
-                                                <div className="flex-1">
+                                                <div className="flex-1 w-full">
                                                     <h3 className="text-lg font-medium mb-3">{result.question}</h3>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <div className={`p-4 rounded-lg ${result.isCorrect ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
+                                                    <div className="grid grid-cols-1 gap-4">
+                                                        <div className={`p-3 sm:p-4 rounded-lg ${result.isCorrect ? 'bg-emerald-500/10' : 'bg-red-500/10'}`}>
                                                             <p className="text-sm text-slate-400 mb-1">إجابتك</p>
                                                             <p className={result.isCorrect ? 'text-emerald-400' : 'text-red-400'}>
                                                                 {result.userAnswerText}
                                                             </p>
                                                         </div>
                                                         {!result.isCorrect && (
-                                                            <div className="p-4 rounded-lg bg-emerald-500/10">
+                                                            <div className="p-3 sm:p-4 rounded-lg bg-emerald-500/10">
                                                                 <p className="text-sm text-slate-400 mb-1">الإجابة الصحيحة</p>
                                                                 <p className="text-emerald-400">{result.correctAnswerText}</p>
                                                             </div>
@@ -352,8 +354,8 @@ const QuizData = ({ params }) => {
                             </div>
 
                             <Link href="/">
-                                <button className="w-full mt-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg
-                                                 transition-all duration-300 font-medium text-lg">
+                                <button className="w-full mt-6 sm:mt-8 py-3 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg
+                                                 transition-all duration-300 font-medium text-base sm:text-lg">
                                     العودة للصفحة الرئيسية
                                 </button>
                             </Link>
@@ -366,12 +368,26 @@ const QuizData = ({ params }) => {
 
     return (
         <div dir='rtl' className="min-h-screen bg-slate-950 py-8 px-4 relative">
-            {/* Progress Bar */}
-            <div className="fixed top-0 left-0 right-0 h-1 bg-slate-800">
-                <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-300"
-                    style={{ width: `${(currentQuestion / quiz.questions.length) * 100}%` }}
-                />
+            {/* Enhanced Progress Bar */}
+            <div className="fixed top-0 left-0 right-0 z-50">
+                <div className="h-1 bg-slate-800">
+                    <div
+                        className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-300"
+                        style={{ width: `${(currentQuestion / quiz.questions.length) * 100}%` }}
+                    />
+                </div>
+                <div className="bg-slate-900/80 backdrop-blur-sm py-2 px-4 flex justify-between items-center text-xs text-slate-300">
+                    <div className="flex items-center gap-2">
+                        <span className="text-blue-400 font-medium">
+                            {Object.keys(selectedAnswers).length} / {quiz.questions.length}
+                        </span>
+                        <span>تم الإجابة</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span>السؤال</span>
+                        <span className="text-emerald-400 font-medium">{currentQuestion + 1} / {quiz.questions.length}</span>
+                    </div>
+                </div>
             </div>
 
             {/* Help Panel */}
@@ -403,10 +419,10 @@ const QuizData = ({ params }) => {
                             </h1>
                             <div className="flex items-center gap-2 mt-2">
                                 <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">
-                                    احياء
+                                    فكر كويس وعلي مهلك
                                 </span>
                                 <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm">
-                                    {quiz.questions.length} أسئلة
+                                    {quiz.questions.length} سؤال
                                 </span>
                             </div>
                         </div>
@@ -446,8 +462,8 @@ const QuizData = ({ params }) => {
                         )}
                     </AnimatePresence>
 
-                    <nav className="mb-8 overflow-x-auto">
-                        <div className="flex gap-2 p-1">
+                    <nav className="mb-8">
+                        <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-15 gap-2 p-1">
                             {quiz?.questions?.map((_, index) => (
                                 <button
                                     key={index}
@@ -524,34 +540,62 @@ const QuizData = ({ params }) => {
                         </div>
                     </div>
 
-                    <div className="flex justify-between">
-                        <button
-                            onClick={handlePrevQuestion}
-                            disabled={currentQuestion === 0}
-                            className="px-8 py-4 bg-slate-800/50 text-slate-200 rounded-lg
-                                     transition-all duration-300 hover:bg-slate-800
-                                     disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            السؤال السابق
-                        </button>
+                    {/* Enhanced Navigation with Progress Summary */}
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-center mb-2">
+                            <div className="flex items-center gap-2 px-4 py-2 bg-slate-800/60 rounded-lg">
+                                <div className="flex flex-col items-center gap-1">
+                                    <div className="text-xs text-slate-400">التقدم</div>
+                                    <div className="text-sm text-emerald-400 font-bold">
+                                        {Math.round((currentQuestion / (quiz.questions.length - 1)) * 100)}%
+                                    </div>
+                                </div>
+                                <div className="h-8 w-px bg-slate-700"></div>
+                                <div className="flex flex-col items-center gap-1">
+                                    <div className="text-xs text-slate-400">تم الإجابة</div>
+                                    <div className="text-sm text-blue-400 font-bold">
+                                        {Object.keys(selectedAnswers).length}/{quiz.questions.length}
+                                    </div>
+                                </div>
+                                <div className="h-8 w-px bg-slate-700"></div>
+                                <div className="flex flex-col items-center gap-1">
+                                    <div className="text-xs text-slate-400">السؤال</div>
+                                    <div className="text-sm text-white font-bold">
+                                        {currentQuestion + 1}/{quiz.questions.length}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                        {currentQuestion === quiz?.questions?.length - 1 ? (
+                        <div className="flex justify-between">
                             <button
-                                onClick={handleSubmitQuiz}
-                                className="px-8 py-4 bg-blue-600 text-white rounded-lg
-                                         hover:bg-blue-700 transition-all duration-300"
-                            >
-                                إنهاء الاختبار
-                            </button>
-                        ) : (
-                            <button
-                                onClick={handleNextQuestion}
+                                onClick={handlePrevQuestion}
+                                disabled={currentQuestion === 0}
                                 className="px-8 py-4 bg-slate-800/50 text-slate-200 rounded-lg
-                                         hover:bg-slate-800 transition-all duration-300"
+                                        transition-all duration-300 hover:bg-slate-800
+                                        disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                السؤال التالي
+                                السؤال السابق
                             </button>
-                        )}
+
+                            {currentQuestion === quiz?.questions?.length - 1 ? (
+                                <button
+                                    onClick={handleSubmitQuiz}
+                                    className="px-8 py-4 bg-blue-600 text-white rounded-lg
+                                            hover:bg-blue-700 transition-all duration-300"
+                                >
+                                    إنهاء الاختبار
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleNextQuestion}
+                                    className="px-8 py-4 bg-slate-800/50 text-slate-200 rounded-lg
+                                            hover:bg-slate-800 transition-all duration-300"
+                                >
+                                    السؤال التالي
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
