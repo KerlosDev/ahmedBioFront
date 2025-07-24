@@ -93,20 +93,20 @@ const Hero = () => {
                                         <FaTrophy className="text-yellow-500 text-lg animate-spin-slow" />
                                         <span className="text-base sm:text-lg font-arabicUI3 
                                                        text-slate-700 dark:text-slate-300">
-                                            مدرس الاحياء والجيولوجيا  بخبرة +3 سنوات                                        </span>
+                                            مدرس الاحياء والجيولوجيا                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Achievement badges */}
                                 <div className="flex justify-center sm:justify-start items-center gap-4 mt-4 flex-wrap">
-                                    <div className="flex items-center gap-2 bg-blue-500/20 px-3 py-1 rounded-full border border-blue-500/40">
+                                   {/*  <div className="flex items-center gap-2 bg-blue-500/20 px-3 py-1 rounded-full border border-blue-500/40">
                                         <FaGraduationCap className="text-blue-600 text-sm" />
                                         <span className="text-sm font-arabicUI3 text-blue-700 dark:text-blue-300">اولي ثانوي </span>
                                     </div>
                                     <div className="flex items-center gap-2 bg-green-500/20 px-3 py-1 rounded-full border border-green-500/40">
                                         <FaUsers className="text-green-600 text-sm" />
                                         <span className="text-sm font-arabicUI3 text-green-700 dark:text-green-300">تانية ثانوي</span>
-                                    </div>
+                                    </div> */}
                                     <div className="flex items-center gap-2 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/40">
                                         <FaStar className="text-purple-600 text-sm animate-pulse" />
                                         <span className="text-sm font-arabicUI3 text-purple-700 dark:text-purple-300">تالتة ثانوي</span>
