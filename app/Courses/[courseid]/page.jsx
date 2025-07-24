@@ -55,119 +55,96 @@ const CoursePage = () => {
         const fetchCourseData = async () => {
             setLoading(true);
             try {
-                // Get basic course data first
-                const courseResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/course/${courseid}`);
-                let courseData = courseResponse.data;
+                // Get token from cookies if available
+                const token = Cookies.get('token');
+
+                // Use the new combined endpoint
+                const headers = {};
+                if (token) {
+                    headers.Authorization = `Bearer ${token}`;
+                    setUser({ token });
+                }
+
+                const response = await axios.get(
+                    `${process.env.NEXT_PUBLIC_API_URL}/course-data/${courseid}`,
+                    { headers }
+                );
+
+                const { course, isEnrolled, enrollmentMessage, enrollmentDetails } = response.data;
 
                 // Set basic course info
                 setCourseInfo({
-                    nameofcourse: courseData.name,
-                    description: courseData.description,
-                    price: courseData.price,
-                    isFree: courseData.isFree,
-                    level: courseData.level,
-                    image: courseData.imageUrl || '/pi.png', // Default to pi.png if no course image
-                    nicknameforcourse: courseid
+                    nameofcourse: course.name,
+                    description: course.description,
+                    price: course.price,
+                    isFree: course.isFree,
+                    level: course.level,
+                    image: course.imageUrl || '/pi.png',
+                    nicknameforcourse: courseid,
+                    _id: course._id,
+                    isEnrolled: isEnrolled // Add enrollment status to courseInfo
                 });
 
-                // Check if user is logged in by getting token from cookies
-                const token = Cookies.get('token');
-                let chaptersData = courseData.chapters || [];
-                let enrollmentStatus = false;
+                // Set enrollment status
+                setIsEnrolled(isEnrolled);
+                setEnrollmentMessage(enrollmentMessage);
 
-                if (token) {
-                    setUser({ token });
-                    try {
-                        // Check enrollment status
-                        const enrollmentResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/active/${courseid}`, {
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-
-                        if (enrollmentResponse.data) {
-                            enrollmentStatus = enrollmentResponse.data.isHeEnrolled;
-                            setIsEnrolled(enrollmentStatus);
-                            setEnrollmentMessage(enrollmentResponse.data.message);
-
-
-                            // Save enrollment status to localStorage
-                            if (enrollmentStatus) {
-                                const enrolledCourses = JSON.parse(localStorage.getItem('enrolledCourses') || '[]');
-                                if (!enrolledCourses.includes(courseid)) {
-                                    enrolledCourses.push(courseid);
-                                    localStorage.setItem('enrolledCourses', JSON.stringify(enrolledCourses));
-                                    // Dispatch custom event to notify other components
-                                    window.dispatchEvent(new Event('enrollmentUpdated'));
-                                }
-                            } else {
-                                // Remove from localStorage if not enrolled
-                                const enrolledCourses = JSON.parse(localStorage.getItem('enrolledCourses') || '[]');
-                                const updatedCourses = enrolledCourses.filter(id => id !== courseid);
-                                localStorage.setItem('enrolledCourses', JSON.stringify(updatedCourses));
-                                // Dispatch custom event to notify other components
-                                window.dispatchEvent(new Event('enrollmentUpdated'));
-                            }
-
-                            // If enrolled, use the detailed chapter data from enrollment response
-                            if (enrollmentStatus && enrollmentResponse.data.enrollment?.courseId?.chapters) {
-                                chaptersData = enrollmentResponse.data.enrollment.courseId.chapters;
-                            }
-                        }
-                    } catch (error) {
-                        console.error("Error checking enrollment:", error);
-                        setIsEnrolled(false);
+                // Update localStorage based on enrollment status
+                const enrolledCourses = JSON.parse(localStorage.getItem('enrolledCourses') || '[]');
+                if (isEnrolled) {
+                    if (!enrolledCourses.includes(courseid)) {
+                        enrolledCourses.push(courseid);
+                        localStorage.setItem('enrolledCourses', JSON.stringify(enrolledCourses));
+                        window.dispatchEvent(new Event('enrollmentUpdated'));
                     }
+                } else {
+                    const updatedCourses = enrolledCourses.filter(id => id !== courseid);
+                    localStorage.setItem('enrolledCourses', JSON.stringify(updatedCourses));
+                    window.dispatchEvent(new Event('enrollmentUpdated'));
                 }
 
-                // Process chapters
-                if (chaptersData.length > 0) {
-                    setChapterDetails(chaptersData);
-                    const formattedChapters = chaptersData.map(chapter => {
-                        // Check if the chapter has lessons
-                        const hasLessons = chapter.lessons && chapter.lessons.length > 0;
+                // Process chapters with the new data structure
+                if (course.chapters && course.chapters.length > 0) {
+                    setChapterDetails(course.chapters);
 
-                        return {
-                            id: chapter._id,
-                            nameofchapter: chapter.title,
-                            lessons: hasLessons
-                                ? chapter.lessons.map(lesson => {
-                                    const isFreeLesson = lesson.isFree === true;
-                                    const isAccessible = enrollmentStatus || isFreeLesson;
+                    const formattedChapters = course.chapters.map(chapter => ({
+                        id: chapter._id,
+                        nameofchapter: chapter.title,
+                        lessons: chapter.lessons.length > 0
+                            ? chapter.lessons.map(lesson => ({
+                                id: lesson._id,
+                                name: lesson.title,
+                                fileName: lesson.fileName,
+                                link: lesson.videoUrl || null,
+                                fileUrl: lesson.fileUrl || null,
+                                locked: !lesson.videoUrl && !lesson.isFree, // Locked if no video URL and not free
+                                isFree: lesson.isFree
+                            }))
+                            : [{ id: '1', name: 'لا توجد دروس متاحة', locked: true }]
+                    }));
 
-                                    return {
-                                        id: lesson._id,
-                                        name: lesson.title,
-                                        // Always include fileName from API
-                                        fileName: lesson.fileName,
-                                        // Include link and fileUrl if enrolled OR if lesson is free
-                                        link: isAccessible ? lesson.videoUrl : null,
-                                        fileUrl: isAccessible ? lesson.fileUrl : null,
-                                        // Lock lessons only if not enrolled AND not free
-                                        locked: !isAccessible,
-                                        // Add free lesson indicator
-                                        isFree: isFreeLesson
-                                    };
-                                })
-                                : enrollmentStatus
-                                    ? [] // Empty array if enrolled but no lessons
-                                    : [{ id: '1', name: 'لا توجد دروس متاحة', locked: true }] // Placeholder if not enrolled and no lessons
-                        };
-                    });
                     setCourseVideoChapters(formattedChapters);
                 }
 
-                // Set exams
-                if (courseData.exams && courseData.exams.length > 0) {
-                    const examData = courseData.exams.map(exam => ({
+                // Set exams (only available if enrolled)
+                if (course.exams && course.exams.length > 0) {
+                    const examData = course.exams.map(exam => ({
                         id: exam._id,
                         title: exam.title
                     }));
                     setExams(examData);
+                } else {
+                    setExams([]);
                 }
 
             } catch (error) {
                 console.error("Error fetching course data:", error);
+                // Handle error appropriately
+                if (error.response?.status === 404) {
+                    setEnrollmentMessage("الكورس غير موجود أو غير متاح");
+                } else {
+                    setEnrollmentMessage("حدث خطأ أثناء تحميل بيانات الكورس");
+                }
             } finally {
                 setLoading(false);
                 setIsLoaded(true);

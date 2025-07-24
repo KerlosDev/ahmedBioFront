@@ -26,35 +26,13 @@ const EnrollmentSection = ({ courseInfo }) => {
             if (userDataStr) {
                 setUserData(JSON.parse(userDataStr));
             }
+        }
 
-            // Get the correct course ID - handle different possible formats
-            const courseId = courseInfo._id || courseInfo.id || courseInfo.nicknameforcourse;
-            console.log('Using courseId:', courseId);
-
-            if (courseId) {
-                // Check enrollment status
-                checkEnrollmentStatus(token, courseId);
-            }
+        // Check enrollment status from courseInfo (which now comes from the new combined endpoint)
+        if (courseInfo.hasOwnProperty('isEnrolled')) {
+            setEnrolled(courseInfo.isEnrolled);
         }
     }, [courseInfo]);
-
-    const checkEnrollmentStatus = async (token, courseId) => {
-        try {
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/active/${courseId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            if (response.data && response.data.isHeEnrolled) {
-                setEnrolled(true);
-            }
-        } catch (error) {
-            console.error('Error checking enrollment status:', error);
-            // If there's an error, assume not enrolled
-            setEnrolled(false);
-        }
-    };
 
     const handleEnrollFree = async () => {
         if (!isLoggedIn) {
