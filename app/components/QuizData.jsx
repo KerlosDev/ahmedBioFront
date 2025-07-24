@@ -403,7 +403,7 @@ const QuizData = ({ params }) => {
                             </h1>
                             <div className="flex items-center gap-2 mt-2">
                                 <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">
-                                    رياضيات
+                                    احياء
                                 </span>
                                 <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm">
                                     {quiz.questions.length} أسئلة

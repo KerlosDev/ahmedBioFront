@@ -95,7 +95,7 @@ const OfferModal = memo(({ isEdit, onSubmit, onClose, currentStep, steps, formDa
                                                 value={formData.title}
                                                 onChange={(e) => onFormChange('title', e.target.value)}
                                                 className={`w-full px-4 py-3 bg-white/5 border ${formErrors.title ? 'border-red-500' : 'border-white/10'} rounded-xl text-white`}
-                                                placeholder="مثال: عرض خاص - مجموعة إتقان الرياضيات"
+                                                placeholder="مثال: عرض خاص - مجموعة إتقان الاحياء"
                                             />
                                             {formErrors.title && <p className="text-red-500 text-sm">{formErrors.title}</p>}
                                         </div>
@@ -106,7 +106,7 @@ const OfferModal = memo(({ isEdit, onSubmit, onClose, currentStep, steps, formDa
                                                 value={formData.subtitle}
                                                 onChange={(e) => onFormChange('subtitle', e.target.value)}
                                                 className={`w-full px-4 py-3 bg-white/5 border ${formErrors.subtitle ? 'border-red-500' : 'border-white/10'} rounded-xl text-white`}
-                                                placeholder="مثال: حسام ميرة يقدم"
+                                                placeholder="مثال: احمد السيد  يقدم"
                                             />
                                             {formErrors.subtitle && <p className="text-red-500 text-sm">{formErrors.subtitle}</p>}
                                         </div>
