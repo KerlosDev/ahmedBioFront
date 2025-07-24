@@ -342,7 +342,7 @@ const Courses = () => {
                         <h1 className="text-3xl sm:text-5xl font-arabicUI2 text-slate-800 dark:text-white">الكورسات</h1>
                         <FaDna className="text-3xl sm:text-4xl text-blue-500 animate-spin-slow" />
                     </div>
-                                <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 font-arabicUI3 mt-4">
+                    <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 font-arabicUI3 mt-4">
                         اختر الكورس المناسب وابدأ رحلة تعلم الأحياء
                     </p>
                 </div>

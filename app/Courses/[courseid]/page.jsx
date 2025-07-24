@@ -726,7 +726,7 @@ const CoursePage = () => {
                                                     <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-white/20 shadow-xl">
                                                         <img
                                                             src="/prof.jpg"
-                                                            alt="أ / حسام ميرة"
+                                                            alt="د / احمد السيد "
                                                             className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                                                         />
                                                         {/* Professional Overlay */}
@@ -750,7 +750,7 @@ const CoursePage = () => {
                                                 <div className="space-y-2">
                                                     <h4 className="text-xl font-bold text-white flex items-center gap-2">
                                                         <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
-                                                            أ / حسام ميرة                                                        </span>
+                                                            د / احمد السيد                                                         </span>
                                                         {/* Verification Badge */}
                                                         <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
                                                             <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -774,10 +774,10 @@ const CoursePage = () => {
                                                     </div>
                                                     <div className="flex flex-wrap gap-2">
                                                         <span className="px-2 py-1 bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-400/20 rounded-lg text-purple-300 text-xs font-medium">
-                                                            البحتة
+                                                            احياء
                                                         </span>
                                                         <span className="px-2 py-1 bg-gradient-to-r from-blue-500/10 to-teal-500/10 border border-blue-400/20 rounded-lg text-blue-300 text-xs font-medium">
-                                                            التطبيقية
+                                                            جيولوجيا
                                                         </span>
                                                         <span className="px-2 py-1 bg-gradient-to-r from-teal-500/10 to-green-500/10 border border-teal-400/20 rounded-lg text-teal-300 text-xs font-medium">
                                                             اخر
