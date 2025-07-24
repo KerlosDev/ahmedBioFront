@@ -725,7 +725,7 @@ const CoursePage = () => {
                                                     {/* Profile Image */}
                                                     <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-white/20 shadow-xl">
                                                         <img
-                                                            src="/prof.jpg"
+                                                            src="/prof.jpeg"
                                                             alt="د / احمد السيد "
                                                             className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                                                         />
