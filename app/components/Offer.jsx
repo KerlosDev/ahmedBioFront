@@ -159,7 +159,7 @@ const Offer = () => {
     const activeOffer = offers[activeSection] || defaultOfferData;
 
     return (
-        <div className="relative min-h-screen bg-gray-900">
+        <div className="relative min-h-screen bg-white dark:bg-gray-900">
 
 
 
@@ -190,20 +190,20 @@ const Offer = () => {
                 <div className="max-w-7xl mx-auto relative z-10">
                     {/* Header */}
                     <div className="text-center mb-4 sm:mb-8 md:mb-16" dir="rtl">
-                        <div className="inline-flex items-center gap-2 sm:gap-4 px-3 sm:px-8 py-2 sm:py-4 bg-white/30 dark:bg-slate-800/30 backdrop-blur-xl rounded-xl sm:rounded-2xl
-                                  border border-blue-500/20 mb-4 sm:mb-6">
+                        <div className="inline-flex items-center gap-2 sm:gap-4 px-3 sm:px-8 py-2 sm:py-4 bg-white/80 dark:bg-slate-800/30 backdrop-blur-xl rounded-xl sm:rounded-2xl
+                                  border border-blue-500/30 dark:border-blue-500/20 mb-4 sm:mb-6 shadow-lg">
                             <h1 className="text-xl sm:text-3xl md:text-5xl font-arabicUI2 text-slate-800 dark:text-white">العروض المميزة</h1>
                             <FiZap className="text-xl sm:text-3xl md:text-4xl text-red-500" />
                         </div>
-                        <p className="text-sm sm:text-base md:text-xl text-slate-600 dark:text-slate-300 font-arabicUI3 px-2">
-                            احصل على أفضل العروض لتعلم الكيمياء مع شهد هاني
+                        <p className="text-sm sm:text-base md:text-xl text-slate-700 dark:text-slate-300 font-arabicUI3 px-2">
+                            احصل على أفضل العروض لتعلم الاحياء مع د / احمد السيد 
                         </p>
                     </div>
                     {/* Section Buttons */}
 
                     {/* Main Offer Card */}
-                    <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl overflow-hidden 
-                                  border border-blue-500/20 relative">
+                    <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-xl rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl overflow-hidden 
+                                  border border-gray-200/80 dark:border-blue-500/20 relative">
                         {/* Subtle Glow Effect */}
                         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 rounded-lg sm:rounded-xl md:rounded-2xl"></div>
                         <div className="relative">
