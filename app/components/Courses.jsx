@@ -1,9 +1,9 @@
 'use client'
 import "../globals.css";
 import React, { useEffect, useState, useMemo } from 'react'
-import { FaBookmark, FaPlay, FaCalculator, FaChartLine } from "react-icons/fa";
-import { TbMathFunction, TbMathIntegral } from "react-icons/tb";
-import { PiMathOperationsFill } from "react-icons/pi";
+import { FaBookmark, FaPlay, FaDna, FaMicroscope } from "react-icons/fa";
+import { GiDna2, GiMolecule, GiTestTubes } from "react-icons/gi";
+import { BiDna } from "react-icons/bi";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AiFillStar } from "react-icons/ai";
@@ -125,7 +125,7 @@ const Courses = () => {
         {
             id: 'الصف الثالث الثانوي',
             name: 'الصف الثالث الثانوي',
-            icon: FaCalculator,
+            icon: FaDna,
             gradient: 'from-amber-500 to-orange-600'
         }
     ], []);
@@ -316,11 +316,11 @@ const Courses = () => {
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-20 right-10 w-40 h-40 bg-blue-500/10 backdrop-blur-3xl rounded-full 
                               flex items-center justify-center animate-float">
-                    <TbMathFunction className="text-6xl text-blue-500/50 animate-spin-slow" />
+                    <GiDna2 className="text-6xl text-blue-500/50 animate-spin-slow" />
                 </div>
                 <div className="absolute top-40 left-20 w-48 h-48 bg-red-500/10 backdrop-blur-3xl rounded-full 
                               flex items-center justify-center animate-float-delayed">
-                    <FaCalculator className="text-7xl text-red-500/50 animate-bounce" />
+                    <FaMicroscope className="text-7xl text-red-500/50 animate-bounce" />
                 </div>
                 <div className="absolute left-10 bottom-10 w-48 h-48 bg-green-500/10 backdrop-blur-3xl rounded-full 
                               flex items-center justify-center animate-float-delayed">
@@ -329,7 +329,7 @@ const Courses = () => {
                 {/* New decorative elements */}
                 <div className="absolute bottom-20 right-1/4 w-32 h-32 bg-yellow-500/10 backdrop-blur-3xl rounded-full 
                               flex items-center justify-center animate-pulse">
-                    <TbMathIntegral className="text-5xl text-yellow-500/50 animate-spin" />
+                    <GiMolecule className="text-5xl text-yellow-500/50 animate-spin" />
                 </div>
                 <div className="absolute inset-0 opacity-10 bg-repeat mix-blend-overlay"></div>
             </div>
@@ -340,10 +340,10 @@ const Courses = () => {
                     <div className="inline-flex items-center gap-2 sm:gap-4 px-4 sm:px-8 py-2 sm:py-4 bg-white/30 dark:bg-slate-800/30 backdrop-blur-xl rounded-2xl
                                   border border-blue-500/20 mb-6">
                         <h1 className="text-3xl sm:text-5xl font-arabicUI2 text-slate-800 dark:text-white">الكورسات</h1>
-                        <FaCalculator className="text-3xl sm:text-4xl text-blue-500 animate-spin-slow" />
+                        <FaDna className="text-3xl sm:text-4xl text-blue-500 animate-spin-slow" />
                     </div>
-                    <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 font-arabicUI3 mt-4">
-                        اختر الكورس المناسب وابدأ رحلة تعلم الرياضيات
+                                <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 font-arabicUI3 mt-4">
+                        اختر الكورس المناسب وابدأ رحلة تعلم الأحياء
                     </p>
                 </div>
                 {/* Level Selection Tabs */}
@@ -439,7 +439,7 @@ const Courses = () => {
                                 <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-blue-500/10 to-transparent" />
                                 {/* Math Icon */}
                                 <div className="absolute top-4 left-4">
-                                    <FaCalculator className="text-3xl text-blue-500 animate-bounce" />
+                                    <FaDna className="text-3xl text-blue-500 animate-bounce" />
                                 </div>
                             </div>
                             <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
@@ -448,7 +448,7 @@ const Courses = () => {
                                     <h2 className="text-xl sm:text-2xl font-arabicUI2 text-slate-800 dark:text-white group-hover:text-blue-500
                                                  transition-colors mb-4">
                                         {item?.name}
-                                        <FaCalculator className="inline-block mr-2 text-blue-500" />
+                                        <FaDna className="inline-block mr-2 text-blue-500" />
                                     </h2>
                                 </Link>
                                 {/* Course Description */}
@@ -458,16 +458,16 @@ const Courses = () => {
                                 {/* Course Features */}
                                 <div className="grid grid-cols-3 gap-2 font-arabicUI3 my-4">
                                     <div className="flex flex-col items-center p-2 bg-blue-500/5 rounded-lg">
-                                        <TbMathFunction className="text-blue-500 mb-1" />
-                                        <span className="text-xs text-slate-600 dark:text-slate-300">معادلات</span>
+                                        <GiDna2 className="text-blue-500 mb-1" />
+                                        <span className="text-xs text-slate-600 dark:text-slate-300">الوراثة</span>
                                     </div>
                                     <div className="flex flex-col items-center p-2 bg-red-500/5 rounded-lg">
-                                        <FaChartLine className="text-red-500 mb-1" />
-                                        <span className="text-xs text-slate-600 dark:text-slate-300">رسوم بيانية</span>
+                                        <FaMicroscope className="text-red-500 mb-1" />
+                                        <span className="text-xs text-slate-600 dark:text-slate-300">الخلايا</span>
                                     </div>
                                     <div className="flex flex-col items-center p-2 bg-yellow-500/5 rounded-lg">
-                                        <PiMathOperationsFill className="text-yellow-500 mb-1" />
-                                        <span className="text-xs text-slate-600 dark:text-slate-300">تمارين</span>
+                                        <GiTestTubes className="text-yellow-500 mb-1" />
+                                        <span className="text-xs text-slate-600 dark:text-slate-300">التجارب</span>
                                     </div>
                                 </div>
                                 {/* Course Stats */}
