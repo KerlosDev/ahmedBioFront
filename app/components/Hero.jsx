@@ -131,7 +131,8 @@ const Hero = () => {
                                     <h1 className="text-3xl sm:text-4xl lg:text-5xl font-arabicUI3 
                                                  text-slate-800 dark:text-slate-200 mb-2">
                                         أهلاً بدفعة{' '}
-                                        <span className={styles.year2026}>
+                                        
+                                        <span  className={styles.year2026}>
                                             2026
                                         </span>
                                     </h1>

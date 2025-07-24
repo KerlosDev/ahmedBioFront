@@ -38,7 +38,16 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`bg-gradient-to-br from-blue-100 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 antialiased`}>
+      <body className={`bg-gradient-to-br from-blue-100 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 antialiased`}
+        style={{
+          '--font-arabicUI': ArabicUI.style.fontFamily,
+          '--font-arabicUI2': ArabicUI2.style.fontFamily,
+          '--font-arabicUI3': ArabicUI3.style.fontFamily,
+          '--font-arabicUI4': ArabicUI4.style.fontFamily,
+          '--font-anton': anton.style.fontFamily,
+          '--font-rakkas': rakkas.style.fontFamily,
+          '--font-abril': abrilFatface.style.fontFamily,
+        }}>
         <SessionProvider>
           <Header />
           {children}

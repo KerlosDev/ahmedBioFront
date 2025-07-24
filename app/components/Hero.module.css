@@ -26,6 +26,7 @@
 
 /* Year 2026 gradient */
 .year2026 {
+  font-family: var(--font-abril);
   font-weight: bold;
   background: linear-gradient(to right, #ef4444, #f97316); /* from-red-500 to-orange-500 */
   background-clip: text;
