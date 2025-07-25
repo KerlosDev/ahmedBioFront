@@ -21,6 +21,7 @@ export default function PaymentsList() {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
+    const [paginationInfo, setPaginationInfo] = useState(null);
 
     // Define fetchEnrollments as a component function
     const fetchEnrollments = async () => {
@@ -50,23 +51,83 @@ export default function PaymentsList() {
                 queryParams.append('sortOrder', sortOrder);
             }
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/active/admin/enrollments?${queryParams}`, {
+            // Fetch all enrollments from a single endpoint
+            const enrollmentsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/active/admin/enrollments?${queryParams}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
-            if (!response.ok) throw new Error('Failed to fetch enrollments');
-            const data = await response.json();
+            if (!enrollmentsResponse.ok) throw new Error('Failed to fetch enrollments');
+            const enrollmentsData = await enrollmentsResponse.json();
 
-            setPayments(data.enrollments);
-            setTotalPages(data.pagination.totalPages);
-            setTotalItems(data.pagination.totalItems);
+            // Store pagination info
+            setPaginationInfo(enrollmentsData.pagination);
+
+            // Process all enrollments from the combined endpoint
+            const formattedEnrollments = enrollmentsData.enrollments.map(enrollment => {
+                // Determine course or package name
+                let name = 'غير محدد';
+                let isPackage = enrollment.isPackage || false;
+
+                if (isPackage && enrollment.packageName) {
+                    name = enrollment.packageName;
+                } else if (isPackage && enrollment.packageId?.name) {
+                    name = enrollment.packageId.name;
+                } else if (enrollment.courseName && enrollment.courseName !== 'N/A') {
+                    name = enrollment.courseName;
+                }
+
+                return {
+                    _id: enrollment._id,
+                    userEmail: enrollment.userEmail,
+                    phoneNumber: enrollment.phoneNumber,
+                    studentName: enrollment.studentName,
+                    courseName: name,
+                    courseId: enrollment.courseId || enrollment.packageId?._id,
+                    price: enrollment.price,
+                    paymentStatus: enrollment.paymentStatus,
+                    createdAt: enrollment.createdAt,
+                    isPackage: isPackage
+                };
+            });
+
+            // Use the enrollments directly with server-side pagination
+            if (enrollmentsData.pagination) {
+                setPayments(formattedEnrollments);
+                setTotalPages(enrollmentsData.pagination.totalPages);
+                setTotalItems(enrollmentsData.pagination.totalItems);
+            } else {
+                // Fallback to manual pagination if the API doesn't provide pagination info
+                // Sort based on selected sort criteria
+                formattedEnrollments.sort((a, b) => {
+                    if (sortBy === 'date') {
+                        return sortOrder === 'desc'
+                            ? new Date(b.createdAt) - new Date(a.createdAt)
+                            : new Date(a.createdAt) - new Date(b.createdAt);
+                    } else if (sortBy === 'amount') {
+                        return sortOrder === 'desc'
+                            ? b.price - a.price
+                            : a.price - b.price;
+                    }
+                    return 0;
+                });
+
+                // Apply pagination manually
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const paginatedEnrollments = formattedEnrollments.slice(startIndex, startIndex + itemsPerPage);
+
+                setPayments(paginatedEnrollments);
+                setTotalPages(Math.ceil(formattedEnrollments.length / itemsPerPage));
+                setTotalItems(formattedEnrollments.length);
+            }
+
             setLoading(false);
         } catch (error) {
             console.error('Error fetching enrollments:', error);
             setError('Failed to load payments');
             toast.error('فشل في تحميل المدفوعات');
+            setLoading(false);
         }
     };
 
@@ -129,7 +190,7 @@ export default function PaymentsList() {
                 return (
                     <span className="flex items-center gap-1 text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full text-sm">
                         <CheckCircle size={14} />
-                        مكتمل
+                        مفعل
                     </span>
                 );
             case 'pending':
@@ -143,18 +204,30 @@ export default function PaymentsList() {
                 return (
                     <span className="flex items-center gap-1 text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-full text-sm">
                         <XCircle size={14} />
-                        فشل
+                        غير مفعل
                     </span>
                 );
             default:
-                return null;
+                return (
+                    <span className="flex items-center gap-1 text-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-full text-sm">
+                        <Clock size={14} />
+                        قيد المعالجة
+                    </span>
+                );
         }
     };
 
     const handlePaymentStatusChange = async (enrollmentId, newStatus) => {
         try {
+            setLoading(true);
             const token = Cookies.get('token');
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/active/payment/${enrollmentId}`, {
+
+            console.log(`Updating payment status for ID: ${enrollmentId}, newStatus: ${newStatus}`);
+
+            // Use a single endpoint for all payment status updates
+            const endpoint = `${process.env.NEXT_PUBLIC_API_URL}/active/payment/${enrollmentId}`;
+
+            const response = await fetch(endpoint, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -163,19 +236,23 @@ export default function PaymentsList() {
                 body: JSON.stringify({ paymentStatus: newStatus })
             });
 
+            const responseData = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to update payment status');
+                throw new Error(responseData.message || responseData.error || 'Failed to update payment status');
             }
 
             // Update local state and refresh data
             await fetchEnrollments();
-            setCurrentPage(1); // Reset to first page after status change
 
-            toast.success(newStatus === 'paid' ? 'تم تفعيل الكورس بنجاح' : 'تم إلغاء تفعيل الكورس بنجاح');
+            toast.success(newStatus === 'paid'
+                ? 'تم تفعيل الاشتراك بنجاح'
+                : 'تم إلغاء تفعيل الاشتراك بنجاح');
         } catch (error) {
             console.error('Error updating payment status:', error);
             toast.error(error.message || 'فشل تحديث حالة الدفع');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -198,6 +275,7 @@ export default function PaymentsList() {
                             <h3 className="text-white/80 font-arabicUI3 text-xs sm:text-sm">المدفوعات المكتملة</h3>
                             <p className="text-lg sm:text-2xl font-arabicUI3 text-white">
                                 {payments?.filter(p => p.paymentStatus === 'paid').length || 0}
+                                {paginationInfo && <span className="text-xs text-white/50 ml-1">(في الصفحة الحالية)</span>}
                             </p>
                         </div>
                     </div>
@@ -211,6 +289,7 @@ export default function PaymentsList() {
                             <h3 className="text-white/80 font-arabicUI3 text-xs sm:text-sm">قيد المعالجة</h3>
                             <p className="text-lg sm:text-2xl font-arabicUI3 text-white">
                                 {payments?.filter(p => p.paymentStatus === 'pending').length || 0}
+                                {paginationInfo && <span className="text-xs text-white/50 ml-1">(في الصفحة الحالية)</span>}
                             </p>
                         </div>
                     </div>
@@ -224,6 +303,7 @@ export default function PaymentsList() {
                             <h3 className="text-white/80 font-arabicUI3 text-xs sm:text-sm">المدفوعات الفاشلة</h3>
                             <p className="text-lg sm:text-2xl font-arabicUI3 text-white">
                                 {payments?.filter(p => p.paymentStatus === 'failed').length || 0}
+                                {paginationInfo && <span className="text-xs text-white/50 ml-1">(في الصفحة الحالية)</span>}
                             </p>
                         </div>
                     </div>
@@ -315,7 +395,7 @@ export default function PaymentsList() {
                         <thead>
                             <tr className="border-b border-white/10">
                                 <th className="py-4 px-6 text-white/60">الطالب</th>
-                                <th className="py-4 px-6 text-white/60">الكورس</th>
+                                <th className="py-4 px-6 text-white/60">الكورس / الحزمة</th>
                                 <th className="py-4 px-6 text-white/60">المبلغ</th>
                                 <th className="py-4 px-6 text-white/60">تاريخ الدفع</th>
                                 <th className="py-4 px-6 text-white/60">الحالة</th>
@@ -327,6 +407,11 @@ export default function PaymentsList() {
                                 <tr key={payment._id} className="border-b border-white/5 hover:bg-white/5">
                                     <td className="py-4 px-6">
                                         <div className="flex flex-col gap-2">
+                                            <div className="inline-flex items-center px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/20 hover:from-indigo-500/15 hover:to-violet-500/15 transition-all group">
+                                                <span className="text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-violet-400 group-hover:from-indigo-300 group-hover:to-violet-300">
+                                                    {payment.studentName}
+                                                </span>
+                                            </div>
                                             <div className="inline-flex items-center px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 hover:from-blue-500/15 hover:to-purple-500/15 transition-all group">
                                                 <Mail size={14} className="text-blue-400 mr-2" />
                                                 <span className="text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 group-hover:from-blue-300 group-hover:to-purple-300" dir="ltr">
@@ -337,7 +422,9 @@ export default function PaymentsList() {
                                                 <div className="inline-flex items-center px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 hover:from-emerald-500/15 hover:to-teal-500/15 transition-all group">
                                                     <Phone size={12} className="text-emerald-400 mr-1.5" />
                                                     <span className="text-xs font-medium bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-400 group-hover:from-emerald-300 group-hover:to-teal-300 font-mono tracking-wider" dir="ltr">
-                                                        {payment.phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, '$1 $2 $3')}
+                                                        {payment.phoneNumber.length >= 11
+                                                            ? payment.phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, '$1 $2 $3')
+                                                            : payment.phoneNumber}
                                                     </span>
                                                 </div>
                                             ) : (
@@ -349,8 +436,11 @@ export default function PaymentsList() {
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
-                                        <span className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-lg">
-                                            {payment.courseName}
+                                        <span className={`px-3 py-1 ${payment.isPackage ? 'bg-purple-500/10 text-purple-400' : 'bg-blue-500/10 text-blue-400'} rounded-lg flex items-center gap-2`}>
+                                            {payment.isPackage && (
+                                                <span className="text-xs px-1.5 py-0.5 bg-purple-400/20 rounded-md text-purple-300">حزمة</span>
+                                            )}
+                                            {payment.courseName || 'غير محدد'}
                                         </span>
                                     </td>
                                     <td className="py-4 px-6 text-white">{payment.price} جنيه</td>
@@ -366,30 +456,34 @@ export default function PaymentsList() {
                                                 <>
                                                     <button
                                                         onClick={() => handlePaymentStatusChange(payment._id, 'paid')}
-                                                        className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-all"
+                                                        className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-all disabled:opacity-50"
+                                                        disabled={loading}
                                                     >
-                                                        تفعيل
+                                                        {loading ? 'جاري التفعيل...' : 'تفعيل'}
                                                     </button>
                                                     <button
                                                         onClick={() => handlePaymentStatusChange(payment._id, 'failed')}
-                                                        className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all"
+                                                        className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all disabled:opacity-50"
+                                                        disabled={loading}
                                                     >
-                                                        رفض
+                                                        {loading ? 'جاري الرفض...' : 'رفض'}
                                                     </button>
                                                 </>
                                             ) : payment.paymentStatus === 'paid' ? (
                                                 <button
                                                     onClick={() => handlePaymentStatusChange(payment._id, 'failed')}
-                                                    className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all"
+                                                    className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all disabled:opacity-50"
+                                                    disabled={loading}
                                                 >
-                                                    إلغاء التفعيل
+                                                    {loading ? 'جاري إلغاء التفعيل...' : 'إلغاء التفعيل'}
                                                 </button>
                                             ) : (
                                                 <button
                                                     onClick={() => handlePaymentStatusChange(payment._id, 'paid')}
-                                                    className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-all"
+                                                    className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-all disabled:opacity-50"
+                                                    disabled={loading}
                                                 >
-                                                    تفعيل
+                                                    {loading ? 'جاري التفعيل...' : 'تفعيل'}
                                                 </button>
                                             )}
                                         </div>
@@ -430,7 +524,10 @@ export default function PaymentsList() {
                 <div className="flex flex-col sm:flex-row items-center justify-between p-4 sm:p-6 border-t border-white/10">
                     <div className="text-white/60 text-sm">
                         {/* Display total items and current page info */}
-                        {`عرض ${indexOfFirstItem} - ${indexOfLastItem} من ${totalItems} عنصر`}
+                        {paginationInfo ?
+                            `عرض ${indexOfFirstItem} - ${indexOfLastItem} من ${totalItems} عنصر` :
+                            `عرض ${payments.length} عناصر`
+                        }
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -443,7 +540,7 @@ export default function PaymentsList() {
                         </button>
                         <button
                             onClick={goToNextPage}
-                            disabled={currentPage === totalPages}
+                            disabled={paginationInfo ? !paginationInfo.hasNextPage : currentPage === totalPages}
                             className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg sm:rounded-xl text-white hover:bg-white/10 transition-colors disabled:opacity-50"
                         >
                             <ChevronRight size={16} />
@@ -460,7 +557,7 @@ export default function PaymentsList() {
                 />
             )}
 
-            <ToastContainer position="bottom-right" dir="rtl" />
+            <ToastContainer position="top-right" dir="rtl" />
         </div>
     );
 }
