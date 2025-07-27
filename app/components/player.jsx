@@ -54,19 +54,12 @@ const VideoPlayer = ({ videoUrl }) => {
             'fullscreen'
           ],
           settings: ['quality', 'speed'],
-          fullscreen: {
-            enabled: true,
-            fallback: true,
-            iosNative: true,
-            container: null
-          },
           youtube: {
             noCookie: false,
             rel: 0,
             showinfo: 0,
             iv_load_policy: 3,
-            modestbranding: 1,
-            playsinline: 1
+            modestbranding: 1
           }
         });
       } else if (videoType === 'bunny') {
@@ -102,25 +95,7 @@ const VideoPlayer = ({ videoUrl }) => {
       }
 
       // Add mobile-specific event listeners for better performance
-      if (playerRef.current && window.innerWidth <= 768) {
-        playerRef.current.on('enterfullscreen', () => {
-          // Force hardware acceleration
-          const playerElement = containerRef.current.querySelector('.plyr, #bunny-player');
-          if (playerElement) {
-            playerElement.style.transform = 'translateZ(0)';
-            playerElement.style.backfaceVisibility = 'hidden';
-          }
-        });
-
-        playerRef.current.on('exitfullscreen', () => {
-          // Reset transforms
-          const playerElement = containerRef.current.querySelector('.plyr, #bunny-player');
-          if (playerElement) {
-            playerElement.style.transform = '';
-            playerElement.style.backfaceVisibility = '';
-          }
-        });
-      }
+     
     }
 
     // Cleanup player instance
@@ -142,14 +117,7 @@ const VideoPlayer = ({ videoUrl }) => {
   return (
     <div
       ref={containerRef}
-      className={`${aspectClass} w-full h-full relative`}
-      style={{
-        willChange: 'transform',
-        backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden',
-        transform: 'translateZ(0)',
-        WebkitTransform: 'translateZ(0)'
-      }}
+      className={`${aspectClass} w-full h-full relative`} 
     />
   );
 };
