@@ -156,8 +156,12 @@ export default function ChemistryLMSProfile({ searchParams }) {
     const calculateTimeSinceJoining = (dateString) => {
         const joinDate = new Date(dateString);
         const now = new Date();
-        const diffTime = Math.abs(now - joinDate);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        // Zero out the time part for both dates
+        const joinDateOnly = new Date(joinDate.getFullYear(), joinDate.getMonth(), joinDate.getDate());
+        const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const diffTime = nowDateOnly - joinDateOnly;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
 
         if (diffDays === 0) return "اليوم";
         if (diffDays === 1) return "الأمس";
@@ -186,7 +190,7 @@ export default function ChemistryLMSProfile({ searchParams }) {
             setUserData(response.data);
 
             // Calculate last active time based on current date
-            setLastActive(calculateTimeSinceJoining(response.data.createdAt));
+            setLastActive(calculateTimeSinceJoining(response.data.lastActive || response.data.createdAt));
 
         } catch (err) {
             console.error('Error fetching user data:', err);

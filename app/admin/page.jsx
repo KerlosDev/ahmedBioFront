@@ -179,8 +179,7 @@ export default function BiologyLMSAdmin() {
                         {activeTab === 'dashboard' && adminData.userRole === 'admin' && (
                             <>
                                 <DashboardStats />
-                                <StudentsList />
-                            </>
+                             </>
                         )}
 
                         {activeTab === 'students' && adminData.userRole === 'admin' && (
