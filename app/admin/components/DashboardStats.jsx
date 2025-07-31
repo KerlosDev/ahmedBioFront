@@ -120,11 +120,51 @@ const DashboardStats = () => {
     };
 
     if (loading) {
+        // Skeleton loader for dashboard stats
         return (
-            <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                <span className="ml-2 text-gray-600 dark:text-white/80">جاري التحميل...</span>
-            </div>
+            <>
+                {/* Stats Skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="bg-white/80 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-gray-200 dark:border-white/20 shadow-lg animate-pulse">
+                            <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 mb-3 mx-auto" />
+                            <div className="h-8 w-16 bg-gray-200 dark:bg-gray-700 rounded mx-auto mb-2" />
+                            <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded mx-auto" />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Additional Stats Skeleton */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="bg-white/80 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-6 border border-gray-200 dark:border-white/20 shadow-lg animate-pulse">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700" />
+                                <div className="h-6 w-12 bg-gray-200 dark:bg-gray-700 rounded" />
+                            </div>
+                            <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded mx-auto" />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Charts Skeleton */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    {[...Array(2)].map((_, i) => (
+                        <div key={i} className="bg-white/90 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-gray-200 dark:border-white/20 shadow-lg animate-pulse">
+                            <div className="h-6 w-40 bg-gray-200 dark:bg-gray-700 rounded mb-6" />
+                            <div className="w-full h-[300px] bg-gray-200 dark:bg-gray-700 rounded" />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Level Distribution Chart Skeleton */}
+                <div className="mt-6">
+                    <div className="bg-white/90 dark:bg-white/10 backdrop-blur-xl rounded-2xl p-8 border border-gray-200 dark:border-white/20 shadow-lg animate-pulse">
+                        <div className="h-6 w-40 bg-gray-200 dark:bg-gray-700 rounded mb-6" />
+                        <div className="w-full h-[300px] bg-gray-200 dark:bg-gray-700 rounded" />
+                    </div>
+                </div>
+            </>
         );
     }
 
