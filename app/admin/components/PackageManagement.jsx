@@ -5,10 +5,11 @@ import {
     Package, Edit, Trash2, Plus,
     Search, X, Check, Image as ImageIcon,
     Book, Tag, FileText, Users, ArrowRight,
-    ArrowLeft, PlusSquare
+    ArrowLeft, PlusSquare, UploadCloud
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Cookies from 'js-cookie';
+import axios from 'axios';
 
 export default function PackageManagement() {
     const [packages, setPackages] = useState([]);
@@ -17,6 +18,16 @@ export default function PackageManagement() {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showProcessingModal, setShowProcessingModal] = useState(false);
+    const [processingMessage, setProcessingMessage] = useState('');
+    const [processingStatus, setProcessingStatus] = useState('loading'); // 'loading', 'success', 'error'
+
+    // Helper function to truncate long filenames
+    const truncateFileName = (fileName) => {
+        if (!fileName) return '';
+        if (fileName.length <= 20) return fileName;
+        return fileName.substring(0, 15) + '...' + fileName.slice(-5);
+    };
     const [selectedPackage, setSelectedPackage] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -31,6 +42,11 @@ export default function PackageManagement() {
         courses: [],
         level: 'الصف الأول الثانوي'
     });
+
+    // For file upload
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     useEffect(() => {
         fetchPackages();
@@ -85,6 +101,7 @@ export default function PackageManagement() {
         }
     };
 
+    // Update the handleAddPackage function to properly handle file uploads
     const handleAddPackage = async () => {
         try {
             // Detailed validation with specific feedback
@@ -96,8 +113,8 @@ export default function PackageManagement() {
                 toast.error('يرجى إدخال وصف الحزمة');
                 return;
             }
-            if (!formData.imageUrl) {
-                toast.error('يرجى إدخال رابط صورة الحزمة');
+            if (!selectedFile && !formData.imageUrl) {
+                toast.error('يرجى اختيار صورة للحزمة');
                 return;
             }
             if (!formData.price) {
@@ -118,50 +135,92 @@ export default function PackageManagement() {
                 ...formData,
                 price: Number(formData.price),
                 originalPrice,
-                discountPercentage
+                discountPercentage,
+                hasImage: !!selectedFile
             });
 
-            // Show loading toast
-            const loadingToast = toast.loading('جاري إضافة الحزمة...');
+            // Show processing modal
+            setIsSubmitting(true);
+            setUploadProgress(0);
+            setProcessingMessage('جاري إضافة الحزمة...');
+            setProcessingStatus('loading');
+            setShowProcessingModal(true);
 
-            const token = Cookies.get('token') || '';
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/packages`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    ...formData,
-                    price: Number(formData.price),
-                    originalPrice,
-                    discountPercentage
-                })
+            // Create FormData object for file upload
+            const packageFormData = new FormData();
+            packageFormData.append('name', formData.name);
+            packageFormData.append('description', formData.description);
+            packageFormData.append('price', Number(formData.price));
+            packageFormData.append('level', formData.level);
+            packageFormData.append('originalPrice', originalPrice);
+            packageFormData.append('discountPercentage', discountPercentage);
+
+            // Append courses as an array
+            formData.courses.forEach(courseId => {
+                packageFormData.append('courses[]', courseId);
             });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('Server error:', errorData);
-                toast.dismiss(loadingToast);
-                toast.error(errorData.message || 'فشل في إضافة الحزمة، يرجى المحاولة مرة أخرى');
-                return;
+            // Append image file if selected, otherwise use image URL
+            if (selectedFile) {
+                packageFormData.append('image', selectedFile);
+                console.log(`Appending file: ${selectedFile.name} (${selectedFile.size} bytes)`);
+            } else if (formData.imageUrl) {
+                packageFormData.append('imageUrl', formData.imageUrl);
+                console.log(`Using image URL: ${formData.imageUrl}`);
             }
 
-            // Dismiss loading toast
-            toast.dismiss(loadingToast);
+            const token = Cookies.get('token') || '';
 
-            await fetchPackages();
-            toast.success('تم إضافة الحزمة بنجاح');
-            setShowAddModal(false);
-            resetForm();
+            // Set up request config with upload progress tracking
+            const config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
+                },
+                onUploadProgress: (progressEvent) => {
+                    const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setUploadProgress(progress);
+                    console.log(`Upload progress: ${progress}%`);
+                }
+            };
+
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/packages`,
+                packageFormData,
+                config
+            );
+
+            if (response.status !== 200 && response.status !== 201) {
+                throw new Error('Failed to add package');
+            }
+
+            // Update processing modal to success
+            setProcessingStatus('success');
+            setProcessingMessage('تم إضافة الحزمة بنجاح');
+
+            // Close the processing modal after a delay
+            setTimeout(() => {
+                setShowProcessingModal(false);
+                setIsSubmitting(false);
+                fetchPackages();
+                setShowAddModal(false);
+                resetForm();
+            }, 1500);
         } catch (error) {
             console.error('Error adding package:', error);
-            // Make sure to dismiss any pending loading toasts
-            toast.dismiss();
-            toast.error(`فشل في إضافة الحزمة: ${error.message || 'خطأ غير معروف'}`);
+            // Update processing modal to error
+            setProcessingStatus('error');
+            setProcessingMessage(`فشل في إضافة الحزمة: ${error.message || 'خطأ غير معروف'}`);
+
+            // Close the processing modal after a delay
+            setTimeout(() => {
+                setShowProcessingModal(false);
+                setIsSubmitting(false);
+            }, 2000);
         }
     };
 
+    // Update the handleEditPackage function to use the same approach
     const handleEditPackage = async () => {
         try {
             // Detailed validation with specific feedback
@@ -173,8 +232,8 @@ export default function PackageManagement() {
                 toast.error('يرجى إدخال وصف الحزمة');
                 return;
             }
-            if (!formData.imageUrl) {
-                toast.error('يرجى إدخال رابط صورة الحزمة');
+            if (!selectedFile && !formData.imageUrl) {
+                toast.error('يرجى اختيار صورة للحزمة');
                 return;
             }
             if (!formData.price) {
@@ -195,51 +254,98 @@ export default function PackageManagement() {
                 ...formData,
                 price: Number(formData.price),
                 originalPrice,
-                discountPercentage
+                discountPercentage,
+                hasNewImage: !!selectedFile
             });
 
-            // Show loading toast
-            const loadingToast = toast.loading('جاري تحديث الحزمة...');
+            // Show processing modal
+            setIsSubmitting(true);
+            setUploadProgress(0);
+            setProcessingMessage('جاري تحديث الحزمة...');
+            setProcessingStatus('loading');
+            setShowProcessingModal(true);
 
-            const token = Cookies.get('token') || '';
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/packages/${selectedPackage._id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    ...formData,
-                    price: Number(formData.price),
-                    originalPrice,
-                    discountPercentage
-                })
+            // Create FormData object for file upload
+            const packageFormData = new FormData();
+            packageFormData.append('name', formData.name);
+            packageFormData.append('description', formData.description);
+            packageFormData.append('price', Number(formData.price));
+            packageFormData.append('level', formData.level);
+            packageFormData.append('originalPrice', originalPrice);
+            packageFormData.append('discountPercentage', discountPercentage);
+
+            // Append courses as an array
+            formData.courses.forEach(courseId => {
+                packageFormData.append('courses[]', courseId);
             });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('Server error:', errorData);
-                toast.dismiss(loadingToast);
-                toast.error(errorData.message || 'فشل في تحديث الحزمة، يرجى المحاولة مرة أخرى');
-                return;
+            // Append image file if selected, otherwise use image URL
+            if (selectedFile) {
+                packageFormData.append('image', selectedFile);
+                console.log(`Appending file: ${selectedFile.name} (${selectedFile.size} bytes)`);
+            } else if (formData.imageUrl) {
+                packageFormData.append('imageUrl', formData.imageUrl);
+                console.log(`Using image URL: ${formData.imageUrl}`);
             }
 
-            // Dismiss loading toast
-            toast.dismiss(loadingToast);
+            const token = Cookies.get('token') || '';
 
-            await fetchPackages();
-            toast.success('تم تحديث الحزمة بنجاح');
-            setShowEditModal(false);
+            // Set up request config with upload progress tracking
+            const config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
+                },
+                onUploadProgress: (progressEvent) => {
+                    const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    setUploadProgress(progress);
+                    console.log(`Upload progress: ${progress}%`);
+                }
+            };
+
+            const response = await axios.put(
+                `${process.env.NEXT_PUBLIC_API_URL}/packages/${selectedPackage._id}`,
+                packageFormData,
+                config
+            );
+
+            if (response.status !== 200) {
+                throw new Error('Failed to update package');
+            }
+
+            // Update processing modal to success
+            setProcessingStatus('success');
+            setProcessingMessage('تم تحديث الحزمة بنجاح');
+
+            // Close the processing modal after a delay
+            setTimeout(() => {
+                setShowProcessingModal(false);
+                setIsSubmitting(false);
+                fetchPackages();
+                setShowEditModal(false);
+                setSelectedFile(null); // Clear the selected file after successful update
+            }, 1500);
         } catch (error) {
             console.error('Error updating package:', error);
-            // Make sure to dismiss any pending loading toasts
-            toast.dismiss();
-            toast.error(`فشل في تحديث الحزمة: ${error.message || 'خطأ غير معروف'}`);
+            // Update processing modal to error
+            setProcessingStatus('error');
+            setProcessingMessage(`فشل في تحديث الحزمة: ${error.message || 'خطأ غير معروف'}`);
+
+            // Close the processing modal after a delay
+            setTimeout(() => {
+                setShowProcessingModal(false);
+                setIsSubmitting(false);
+            }, 2000);
         }
     };
 
     const handleDeletePackage = async () => {
         try {
+            // Show processing modal
+            setProcessingMessage('جاري حذف الحزمة...');
+            setProcessingStatus('loading');
+            setShowProcessingModal(true);
+
             const token = Cookies.get('token') || '';
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/packages/${selectedPackage._id}`, {
                 method: 'DELETE',
@@ -252,17 +358,32 @@ export default function PackageManagement() {
                 throw new Error('Failed to delete package');
             }
 
-            await fetchPackages();
-            toast.success('تم حذف الحزمة بنجاح');
-            setShowDeleteModal(false);
+            // Update processing modal to success
+            setProcessingStatus('success');
+            setProcessingMessage('تم حذف الحزمة بنجاح');
+
+            // Close the processing modal after a delay
+            setTimeout(() => {
+                setShowProcessingModal(false);
+                fetchPackages();
+                setShowDeleteModal(false);
+            }, 1500);
         } catch (error) {
             console.error('Error deleting package:', error);
-            toast.error('فشل في حذف الحزمة');
+            // Update processing modal to error
+            setProcessingStatus('error');
+            setProcessingMessage('فشل في حذف الحزمة');
+
+            // Close the processing modal after a delay
+            setTimeout(() => {
+                setShowProcessingModal(false);
+            }, 2000);
         }
     };
 
     const openEditModal = (pkg) => {
         setSelectedPackage(pkg);
+        setSelectedFile(null); // Reset selected file when opening edit modal
         setFormData({
             name: pkg.name,
             description: pkg.description,
@@ -288,6 +409,8 @@ export default function PackageManagement() {
             courses: [],
             level: 'الصف الأول الثانوي'
         });
+        setSelectedFile(null);
+        setUploadProgress(0);
     };
 
     const toggleCourseSelection = (courseId) => {
@@ -546,15 +669,104 @@ export default function PackageManagement() {
                                 </div>
 
                                 <div>
-                                    <label className="block mb-2 text-white/80">رابط الصورة</label>
-                                    <input
-                                        type="text"
-                                        name="imageUrl"
-                                        value={formData.imageUrl}
-                                        onChange={handleInputChange}
-                                        placeholder="رابط صورة الحزمة"
-                                        className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/40"
-                                    />
+                                    <label className="block mb-2 text-white/80">صورة الحزمة</label>
+                                    <div className="space-y-3">
+                                        <div
+                                            className="border-2 border-dashed border-white/20 rounded-xl p-4 text-center cursor-pointer hover:border-white/40 transition-all"
+                                            onClick={() => document.getElementById(showEditModal ? 'edit-package-image' : 'add-package-image').click()}
+                                        >
+                                            <input
+                                                type="file"
+                                                id={showEditModal ? 'edit-package-image' : 'add-package-image'}
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file = e.target.files[0];
+                                                    if (file) {
+                                                        // Validate file size before proceeding
+                                                        if (file.size > 2 * 1024 * 1024) {
+                                                            toast.error('حجم الملف كبير جدًا. الحد الأقصى هو 2 ميجابايت');
+                                                            e.target.value = '';
+                                                            return;
+                                                        }
+
+                                                        setSelectedFile(file);
+                                                        // Create a preview URL
+                                                        const imageUrl = URL.createObjectURL(file);
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            imageUrl: imageUrl
+                                                        }));
+                                                    }
+                                                }}
+                                            />
+                                            <div className="flex flex-col items-center gap-2">
+                                                <UploadCloud size={32} className="text-white/50" />
+                                                <span className="text-white/70">اضغط لاختيار صورة أو اسحب الصورة هنا</span>
+                                                <span className="text-white/50 text-sm">JPG, PNG أو WEBP (حد أقصى 2 ميجابايت)</span>
+                                            </div>
+                                        </div>
+
+                                        {formData.imageUrl && (
+                                            <div className="relative bg-white/5 rounded-xl p-2 border border-white/10">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-16 h-16 bg-white/10 rounded-lg overflow-hidden relative">
+                                                        <img
+                                                            src={formData.imageUrl}
+                                                            alt="معاينة الصورة"
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                e.target.onerror = null;
+                                                                e.target.src = 'https://placehold.co/400x400/slate/white?text=صورة+الحزمة';
+                                                            }}
+                                                        />
+                                                        {uploadProgress > 0 && uploadProgress < 100 && (
+                                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                                                <div className="w-10 h-10 rounded-full border-2 border-t-blue-500 border-blue-500/20 animate-spin"></div>
+                                                                <span className="absolute text-xs text-white">{uploadProgress}%</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="text-sm text-white/80 truncate">
+                                                            {selectedFile ? truncateFileName(selectedFile.name) : 'رابط الصورة'}
+                                                        </p>
+                                                        <p className="text-xs text-white/50">
+                                                            {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : 'صورة من الإنترنت'}
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelectedFile(null);
+                                                            setFormData(prev => ({ ...prev, imageUrl: '' }));
+                                                        }}
+                                                        className="p-1.5 bg-white/10 rounded-lg hover:bg-white/20"
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Optionally keep URL input for backwards compatibility */}
+                                        <div className="flex items-center gap-2">
+                                            <hr className="flex-grow border-white/10" />
+                                            <span className="text-white/50 text-xs">أو</span>
+                                            <hr className="flex-grow border-white/10" />
+                                        </div>
+
+                                        <input
+                                            type="text"
+                                            name="imageUrl"
+                                            value={selectedFile ? '' : formData.imageUrl}
+                                            onChange={handleInputChange}
+                                            placeholder="أدخل رابط الصورة مباشرة"
+                                            disabled={selectedFile !== null}
+                                            className={`w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/40 ${selectedFile ? 'opacity-50 cursor-not-allowed' : ''
+                                                }`}
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
@@ -714,15 +926,104 @@ export default function PackageManagement() {
                                 </div>
 
                                 <div>
-                                    <label className="block mb-2 text-white/80">رابط الصورة</label>
-                                    <input
-                                        type="text"
-                                        name="imageUrl"
-                                        value={formData.imageUrl}
-                                        onChange={handleInputChange}
-                                        placeholder="رابط صورة الحزمة"
-                                        className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/40"
-                                    />
+                                    <label className="block mb-2 text-white/80">صورة الحزمة</label>
+                                    <div className="space-y-3">
+                                        <div
+                                            className="border-2 border-dashed border-white/20 rounded-xl p-4 text-center cursor-pointer hover:border-white/40 transition-all"
+                                            onClick={() => document.getElementById('edit-package-image').click()}
+                                        >
+                                            <input
+                                                type="file"
+                                                id="edit-package-image"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file = e.target.files[0];
+                                                    if (file) {
+                                                        // Validate file size before proceeding
+                                                        if (file.size > 2 * 1024 * 1024) {
+                                                            toast.error('حجم الملف كبير جدًا. الحد الأقصى هو 2 ميجابايت');
+                                                            e.target.value = '';
+                                                            return;
+                                                        }
+
+                                                        setSelectedFile(file);
+                                                        // Create a preview URL
+                                                        const imageUrl = URL.createObjectURL(file);
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            imageUrl: imageUrl
+                                                        }));
+                                                    }
+                                                }}
+                                            />
+                                            <div className="flex flex-col items-center gap-2">
+                                                <UploadCloud size={32} className="text-white/50" />
+                                                <span className="text-white/70">اضغط لاختيار صورة أو اسحب الصورة هنا</span>
+                                                <span className="text-white/50 text-sm">JPG, PNG أو WEBP (حد أقصى 2 ميجابايت)</span>
+                                            </div>
+                                        </div>
+
+                                        {formData.imageUrl && (
+                                            <div className="relative bg-white/5 rounded-xl p-2 border border-white/10">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-16 h-16 bg-white/10 rounded-lg overflow-hidden relative">
+                                                        <img
+                                                            src={formData.imageUrl}
+                                                            alt="معاينة الصورة"
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                e.target.onerror = null;
+                                                                e.target.src = 'https://placehold.co/400x400/slate/white?text=صورة+الحزمة';
+                                                            }}
+                                                        />
+                                                        {uploadProgress > 0 && uploadProgress < 100 && (
+                                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                                                <div className="w-10 h-10 rounded-full border-2 border-t-blue-500 border-blue-500/20 animate-spin"></div>
+                                                                <span className="absolute text-xs text-white">{uploadProgress}%</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <p className="text-sm text-white/80 truncate">
+                                                            {selectedFile ? truncateFileName(selectedFile.name) : 'رابط الصورة'}
+                                                        </p>
+                                                        <p className="text-xs text-white/50">
+                                                            {selectedFile ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB` : 'صورة من الإنترنت'}
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelectedFile(null);
+                                                            setFormData(prev => ({ ...prev, imageUrl: '' }));
+                                                        }}
+                                                        className="p-1.5 bg-white/10 rounded-lg hover:bg-white/20"
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Optionally keep URL input for backwards compatibility */}
+                                        <div className="flex items-center gap-2">
+                                            <hr className="flex-grow border-white/10" />
+                                            <span className="text-white/50 text-xs">أو</span>
+                                            <hr className="flex-grow border-white/10" />
+                                        </div>
+
+                                        <input
+                                            type="text"
+                                            name="imageUrl"
+                                            value={selectedFile ? '' : formData.imageUrl}
+                                            onChange={handleInputChange}
+                                            placeholder="أدخل رابط الصورة مباشرة"
+                                            disabled={selectedFile !== null}
+                                            className={`w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/40 ${selectedFile ? 'opacity-50 cursor-not-allowed' : ''
+                                                }`}
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
@@ -881,6 +1182,58 @@ export default function PackageManagement() {
                                 تأكيد الحذف
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Processing Modal */}
+            {showProcessingModal && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-gradient-to-b from-slate-800/95 to-slate-900/95 rounded-xl p-6 max-w-sm w-full text-center">
+                        <div className="mb-4">
+                            {processingStatus === 'loading' && (
+                                <div className="w-20 h-20 rounded-full border-4 border-t-blue-500 border-blue-500/20 animate-spin mx-auto"></div>
+                            )}
+                            {processingStatus === 'success' && (
+                                <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mx-auto">
+                                    <Check className="text-green-500" size={36} />
+                                </div>
+                            )}
+                            {processingStatus === 'error' && (
+                                <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto">
+                                    <X className="text-red-500" size={36} />
+                                </div>
+                            )}
+                        </div>
+
+                        <h3 className="text-xl font-semibold mb-2">
+                            {processingStatus === 'loading' && 'جاري المعالجة'}
+                            {processingStatus === 'success' && 'تمت العملية بنجاح'}
+                            {processingStatus === 'error' && 'حدث خطأ'}
+                        </h3>
+
+                        <p className="text-white/80 mb-4">{processingMessage}</p>
+
+                        {processingStatus !== 'loading' && (
+                            <button
+                                onClick={() => setShowProcessingModal(false)}
+                                className="px-4 py-2 bg-white/10 rounded-xl hover:bg-white/20 transition-all"
+                            >
+                                إغلاق
+                            </button>
+                        )}
+
+                        {processingStatus === 'loading' && uploadProgress > 0 && (
+                            <div className="mt-4">
+                                <div className="w-full bg-white/10 rounded-full h-2.5">
+                                    <div
+                                        className="bg-blue-500 h-2.5 rounded-full"
+                                        style={{ width: `${uploadProgress}%` }}
+                                    ></div>
+                                </div>
+                                <p className="text-white/50 text-sm mt-1">{uploadProgress}%</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
