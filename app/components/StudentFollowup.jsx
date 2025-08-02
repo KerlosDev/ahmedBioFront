@@ -12,7 +12,7 @@ import {
 import { jsPDF } from 'jspdf';
 import { Bar, Line } from 'react-chartjs-2';
 import html2canvas from 'html2canvas';
-import { FaUser, FaEye, FaClock, FaList, FaTimes, FaWhatsapp, FaDownload, FaFilePdf, FaImage, FaGraduationCap, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaRegCircle, FaChartBar, FaUsers, FaPlayCircle, FaTrophy, FaSearch, FaChartLine, FaUserCheck, FaClipboardCheck, FaStar, FaChevronDown, FaChevronUp, FaBookmark, FaPlay, FaHistory, FaBookOpen, FaBookReader, FaCircle, FaFileAlt, FaCalendar, FaQuestionCircle } from "react-icons/fa";
+import { FaUser, FaEye, FaClock, FaList, FaTimes, FaWhatsapp, FaDownload, FaFilePdf, FaImage, FaGraduationCap, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaRegCircle, FaChartBar, FaUsers, FaPlayCircle, FaTrophy, FaSearch, FaChartLine, FaUserCheck, FaClipboardCheck, FaStar, FaChevronDown, FaChevronUp, FaBookmark, FaPlay, FaHistory, FaBookOpen, FaBookReader, FaCircle, FaFileAlt, FaCalendar, FaCalendarAlt, FaCalendarWeek, FaQuestionCircle, FaChevronRight, FaChevronLeft, FaUserGraduate } from "react-icons/fa";
 import Cookies from 'js-cookie';
 
 const getAuthHeaders = () => ({
@@ -35,7 +35,12 @@ const StudentFollowup = () => {
         totalViews: 0,
         uniqueStudents: 0,
         mostViewedLesson: '',
-        mostActiveStudent: ''
+        mostActiveStudent: '',
+        viewsLast24Hours: 0,
+        viewsLastWeek: 0,
+        viewsLastMonth: 0,
+        mostViewedLessonData: null,
+        mostActiveStudentData: null
     });
     const [chartData, setChartData] = useState({
         labels: [],
@@ -47,7 +52,7 @@ const StudentFollowup = () => {
     const [showLessonsModal, setShowLessonsModal] = useState(false);
     const [whatsappNumbers, setWhatsappNumbers] = useState({});
     const [studentChartData, setStudentChartData] = useState(null);
-    const [activeTab, setActiveTab] = useState('overview'); // 'overview' or 'details'
+    const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'details', or 'enrolled'
     const [quizResults, setQuizResults] = useState([]);
     const reportRef = useRef(null);
     const [allCourses, setAllCourses] = useState([]);
@@ -60,10 +65,20 @@ const StudentFollowup = () => {
     const [filteredExams, setFilteredExams] = useState([]);
     const [inactivityThreshold] = useState(7); // Days to consider a student inactive
     const [watchHistory, setWatchHistory] = useState([]);
+    const [isMostViewedLessonExpanded, setIsMostViewedLessonExpanded] = useState(false);
+
+    // Enrolled students state
+    const [enrolledStudentList, setEnrolledStudentList] = useState([]);
+    const [enrolledCurrentPage, setEnrolledCurrentPage] = useState(1);
+    const [enrolledTotalPages, setEnrolledTotalPages] = useState(0);
+    const [enrolledTotalStudents, setEnrolledTotalStudents] = useState(0);
+    const [enrolledLoading, setEnrolledLoading] = useState(false);
+    const [enrolledSearchTerm, setEnrolledSearchTerm] = useState('');
+    const [enrolledSortBy, setEnrolledSortBy] = useState('views'); // 'views', 'recent' or 'inactive'
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
-    const [studentsPerPage] = useState(10);
+    const [studentsPerPage, setStudentsPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
     const [totalStudents, setTotalStudents] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -90,7 +105,116 @@ const StudentFollowup = () => {
     useEffect(() => {
         fetchLessonData();
         fetchAllCoursesAndChapters();
-    }, [currentPage, sortBy, searchTerm]);
+        fetchViewsStatistics(); // Add this new function call
+    }, [currentPage, sortBy, searchTerm, studentsPerPage]);
+
+    // Effect to fetch enrolled students when tab changes or pagination/filter changes
+    useEffect(() => {
+        if (activeTab === 'enrolled') {
+            fetchEnrolledStudents();
+        }
+    }, [activeTab, enrolledCurrentPage, enrolledSortBy, enrolledSearchTerm, studentsPerPage]);
+
+    // Function to fetch views statistics
+    const fetchViewsStatistics = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/views-statistics`, {
+                headers: getAuthHeaders()
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setStats(prevStats => {
+                    // Format most viewed lesson text
+                    let mostViewedLessonText = 'لم يتم تحديده';
+                    if (data.data.mostViewedLesson) {
+                        const mvl = data.data.mostViewedLesson;
+                        mostViewedLessonText = `${mvl.lessonTitle} (${mvl.courseName})`;
+                    }
+
+                    // Format most active student text
+                    let mostActiveStudentText = 'لا يوجد';
+                    if (data.data.mostActiveStudent) {
+                        const mas = data.data.mostActiveStudent;
+                        mostActiveStudentText = mas.email;
+                    }
+
+                    return {
+                        ...prevStats,
+                        totalViews: data.data.totalViews,
+                        viewsLast24Hours: data.data.last24Hours,
+                        viewsLastWeek: data.data.lastWeek,
+                        viewsLastMonth: data.data.lastMonth,
+                        mostViewedLesson: mostViewedLessonText,
+                        mostActiveStudent: mostActiveStudentText,
+                        // Store the full objects as well for potential future use
+                        mostViewedLessonData: data.data.mostViewedLesson,
+                        mostActiveStudentData: data.data.mostActiveStudent
+                    };
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching views statistics:', error);
+        }
+    };
+
+    const fetchEnrolledStudents = async () => {
+        try {
+            setEnrolledLoading(true);
+            const queryParams = new URLSearchParams({
+                page: enrolledCurrentPage.toString(),
+                limit: studentsPerPage.toString(),
+                sortBy: enrolledSortBy,
+                ...(enrolledSearchTerm && { search: enrolledSearchTerm })
+            });
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/enrolled-students?${queryParams}`, {
+                headers: getAuthHeaders()
+            });
+
+            const studentsData = await response.json();
+
+            if (studentsData.success) {
+                // Update pagination info
+                setEnrolledTotalPages(studentsData.totalPages);
+                setEnrolledTotalStudents(studentsData.totalStudents);
+
+                // Process student data with detailed enrollment information
+                const processedStudents = studentsData.data.map(student => {
+                    const totalWatchedLessons = student.activityStatus.totalWatchedLessons || 0;
+                    const enrolledCoursesCount = student.enrollmentStatus.enrolledCourses.length;
+                    const totalLessonsAvailable = student.enrollmentStatus.enrolledCourses.reduce((total, course) => {
+                        return total + course.chapters.reduce((chapterTotal, chapter) => {
+                            return chapterTotal + chapter.lessons.length;
+                        }, 0);
+                    }, 0);
+
+                    return {
+                        email: student.studentInfo.email,
+                        userName: student.studentInfo.name,
+                        totalViews: totalWatchedLessons,
+                        lastViewed: student.studentInfo.lastActivity,
+                        status: getStudentStatus(student.activityStatus),
+                        uniqueLessons: totalWatchedLessons,
+                        enrolledCourses: enrolledCoursesCount,
+                        totalLessonsAvailable,
+                        isEnrolled: student.enrollmentStatus.isEnrolled,
+                        enrollmentDetails: student.enrollmentStatus.enrolledCourses,
+                        lessons: [], // Will be populated by watch history if available
+                        lessonViews: {},
+                        hasWatchHistory: totalWatchedLessons > 0
+                    };
+                });
+
+                setEnrolledStudentList(processedStudents);
+            }
+        } catch (error) {
+            console.error('Error fetching enrolled students:', error);
+        } finally {
+            setEnrolledLoading(false);
+        }
+    };
 
     const fetchLessonData = async () => {
         try {
@@ -177,12 +301,11 @@ const StudentFollowup = () => {
                 const mostActiveStudent = processedStudents.reduce((prev, current) =>
                     (current.totalViews > (prev?.totalViews || 0)) ? current : prev, null);
 
-                setStats({
-                    totalViews,
-                    uniqueStudents: studentsData.totalStudents, // Use total from server
-                    mostViewedLesson: 'لم يتم تحديده', // This info is not available in the new API
-                    mostActiveStudent: mostActiveStudent?.email || 'لا يوجد'
-                });
+                setStats(prevStats => ({
+                    ...prevStats, // Keep any existing stats like views periods
+                    uniqueStudents: studentsData.totalStudents // Use total from server
+                    // We get mostViewedLesson and mostActiveStudent from the API now
+                }));
 
                 // Set basic chart data
                 setChartData({
@@ -673,7 +796,7 @@ const StudentFollowup = () => {
         }
     };
 
-   
+
 
 
     const resetRatingForm = () => {
@@ -1095,6 +1218,19 @@ const StudentFollowup = () => {
                             </div>
                         </button>
                     )}
+
+                    <button
+                        onClick={() => setActiveTab('enrolled')}
+                        className={`px-6 py-3 rounded-xl font-arabicUI3 transition-all duration-200 transform hover:scale-105 ${activeTab === 'enrolled'
+                            ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg shadow-green-500/25'
+                            : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
+                            }`}
+                    >
+                        <div className="flex items-center gap-2">
+                            <FaUserGraduate className={activeTab === 'enrolled' ? 'text-white' : 'text-white/70'} />
+                            <span>الطلاب المشتركين</span>
+                        </div>
+                    </button>
                 </div>
 
                 <div className="flex gap-2">
@@ -1116,9 +1252,199 @@ const StudentFollowup = () => {
                 </div>
             </div>
 
-            {activeTab === 'overview' ? (
+            {activeTab === 'enrolled' ? (
+                <div className="space-y-6">
+                    {/* Header with search and filters */}
+                    <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-lg rounded-2xl p-6 border border-white/10 shadow-xl">
+                        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                            <h2 className="text-2xl font-bold text-white font-arabicUI3">قائمة الطلاب المشتركين</h2>
+
+                            <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                                {/* Search bar */}
+                                <div className="relative flex-grow">
+                                    <div className="absolute inset-y-0 end-0 flex items-center pe-3 pointer-events-none">
+                                        <FaSearch className="text-gray-400" />
+                                    </div>
+                                    <input
+                                        type="search"
+                                        className="w-full p-3 pr-10 rounded-xl bg-slate-700/50 border border-slate-600/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                                        placeholder="بحث عن طالب..."
+                                        value={enrolledSearchTerm}
+                                        onChange={(e) => {
+                                            setEnrolledSearchTerm(e.target.value);
+                                            setEnrolledCurrentPage(1); // Reset to first page on search
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Sort selector */}
+                                <select
+                                    className="p-3 rounded-xl bg-slate-700/50 border border-slate-600/50 text-white focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                                    value={enrolledSortBy}
+                                    onChange={(e) => {
+                                        setEnrolledSortBy(e.target.value);
+                                        setEnrolledCurrentPage(1); // Reset to first page on sort change
+                                    }}
+                                >
+                                    <option value="views">الأكثر مشاهدة</option>
+                                    <option value="recent">النشاط الأخير</option>
+                                    <option value="inactive">غير نشط</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Enrolled Students Table */}
+                    <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-lg rounded-2xl p-6 border border-white/10 shadow-xl overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-slate-700">
+                                <thead className="bg-slate-800/70">
+                                    <tr>
+                                        <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            الطالب
+                                        </th>
+                                        <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            الكورسات
+                                        </th>
+                                        <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            المشاهدات
+                                        </th>
+                                        <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            النشاط
+                                        </th>
+                                        <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            الحالة
+                                        </th>
+                                        <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                            تواصل
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-slate-800/30 divide-y divide-slate-700">
+                                    {enrolledLoading ? (
+                                        <tr>
+                                            <td colSpan="6" className="px-6 py-8 text-center text-white">
+                                                <div className="flex items-center justify-center">
+                                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                                                    <span className="ms-3">جاري التحميل...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ) : enrolledStudentList.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="6" className="px-6 py-8 text-center text-white">
+                                                لا يوجد طلاب مشتركين في أي كورس
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        enrolledStudentList.map((student, index) => (
+                                            <tr key={index}
+                                                className={`transition-all duration-150 hover:bg-slate-700/40 cursor-pointer ${selectedStudent?.email === student.email ? 'bg-green-900/30 border-l-4 border-green-500' : ''}`}
+                                                onClick={() => handleStudentSelect(student)}
+                                            >
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex items-center">
+                                                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold">
+                                                            {student.userName[0].toUpperCase()}
+                                                        </div>
+                                                        <div className="ms-4">
+                                                            <div className="text-sm font-medium text-white">{student.userName}</div>
+                                                            <div className="text-xs text-gray-400">{student.email}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                                                    <div className="flex items-center">
+                                                        <FaBookOpen className="mr-2 text-green-500" />
+                                                        <span>{student.enrolledCourses}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                                                    <div className="flex items-center">
+                                                        <FaEye className="mr-2 text-blue-500" />
+                                                        <span>{student.totalViews}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                                                    <div className="flex items-center">
+                                                        <FaClock className="mr-2 text-purple-500" />
+                                                        <span>{student.lastViewed ? formatDate(student.lastViewed) : 'لم يبدأ بعد'}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${student.status.color} bg-opacity-10`}>
+                                                        {student.status.label}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    {whatsappNumbers[student.email]?.studentWhatsApp && (
+                                                        <a
+                                                            href={getWhatsAppLink(whatsappNumbers[student.email]?.studentWhatsApp)}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-green-400 hover:text-green-300 mr-3"
+                                                        >
+                                                            <FaWhatsapp size={20} />
+                                                        </a>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Pagination Controls */}
+                        {enrolledTotalPages > 0 && (
+                            <div className="mt-6 flex justify-between items-center">
+                                <div className="text-sm text-gray-300">
+                                    إجمالي الطلاب: {enrolledTotalStudents} | الصفحة {enrolledCurrentPage} من {enrolledTotalPages}
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setEnrolledCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={enrolledCurrentPage <= 1}
+                                        className={`px-4 py-2 rounded-lg ${enrolledCurrentPage <= 1
+                                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed'
+                                            : 'bg-slate-700 text-white hover:bg-slate-600'}`}
+                                    >
+                                        <FaChevronRight />
+                                    </button>
+                                    <button
+                                        onClick={() => setEnrolledCurrentPage(prev => Math.min(prev + 1, enrolledTotalPages))}
+                                        disabled={enrolledCurrentPage >= enrolledTotalPages}
+                                        className={`px-4 py-2 rounded-lg ${enrolledCurrentPage >= enrolledTotalPages
+                                            ? 'bg-slate-700/50 text-gray-500 cursor-not-allowed'
+                                            : 'bg-slate-700 text-white hover:bg-slate-600'}`}
+                                    >
+                                        <FaChevronLeft />
+                                    </button>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm text-gray-300">عرض:</span>
+                                    <select
+                                        className="bg-slate-700 text-white rounded-lg px-2 py-1"
+                                        value={studentsPerPage}
+                                        onChange={(e) => {
+                                            setStudentsPerPage(Number(e.target.value));
+                                            setEnrolledCurrentPage(1); // Reset to first page
+                                        }}
+                                    >
+                                        <option value={10}>10</option>
+                                        <option value={20}>20</option>
+                                        <option value={50}>50</option>
+                                        <option value={100}>100</option>
+                                    </select>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ) : activeTab === 'overview' ? (
                 <>
                     {/* Stats Cards */}
+                    {/* Main stats */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 backdrop-blur-lg rounded-2xl p-6 border border-blue-500/20 hover:border-blue-400/30 transition-all duration-300 group">
                             <div className="flex items-start justify-between mb-4">
@@ -1145,7 +1471,34 @@ const StudentFollowup = () => {
                                     <FaPlayCircle className="text-green-400 text-xl" />
                                 </div>
                             </div>
-                            <p className="text-xl font-bold text-white">{stats.mostViewedLesson}</p>
+                            <div className="w-full">
+                                <div className="flex items-start justify-between">
+                                    <div className={`${isMostViewedLessonExpanded ? 'w-full' : 'w-4/5'} transition-all duration-300`}>
+                                        <p className={`text-xl font-bold text-white ${!isMostViewedLessonExpanded && "line-clamp-1"}`}>
+                                            {stats.mostViewedLesson}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => setIsMostViewedLessonExpanded(!isMostViewedLessonExpanded)}
+                                        className="flex-shrink-0 ml-2 text-green-400 hover:text-green-300 transition-colors"
+                                        aria-label={isMostViewedLessonExpanded ? "عرض أقل" : "عرض المزيد"}
+                                    >
+                                        {isMostViewedLessonExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                                    </button>
+                                </div>
+                                {stats.mostViewedLessonData && (
+                                    <div className="flex justify-between items-center mt-2">
+                                        <p className="text-sm text-white/60">
+                                            {stats.mostViewedLessonData.totalViews} مشاهدة
+                                        </p>
+                                        {isMostViewedLessonExpanded && stats.mostViewedLessonData.chapterTitle && (
+                                            <p className="text-xs text-white/40">
+                                                {stats.mostViewedLessonData.chapterTitle}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/20 backdrop-blur-lg rounded-2xl p-6 border border-amber-500/20 hover:border-amber-400/30 transition-all duration-300 group">
                             <div className="flex items-start justify-between mb-4">
@@ -1154,7 +1507,51 @@ const StudentFollowup = () => {
                                     <FaTrophy className="text-amber-400 text-xl" />
                                 </div>
                             </div>
-                            <p className="text-lg font-bold text-white">{stats.mostActiveStudent}</p>
+                            <div>
+                                <p className="text-lg font-bold text-white">{stats.mostActiveStudent}</p>
+                                {stats.mostActiveStudentData && (
+                                    <p className="text-xs text-white/60 mt-1">
+                                        {stats.mostActiveStudentData.totalViews} مشاهدة
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Time-based view statistics */}
+                    <h3 className="text-xl font-bold text-white mt-10 mb-4">إحصائيات المشاهدات حسب الفترة</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Last 24 hours */}
+                        <div className="bg-gradient-to-br from-amber-500/20 to-amber-600/20 backdrop-blur-lg rounded-2xl p-6 border border-amber-500/20 hover:border-amber-400/30 transition-all duration-300 group">
+                            <div className="flex items-start justify-between mb-4">
+                                <h3 className="text-white/80 font-arabicUI3 text-lg">آخر 24 ساعة</h3>
+                                <div className="p-2 bg-amber-500/20 rounded-xl group-hover:scale-110 transition-transform">
+                                    <FaClock className="text-amber-400 text-xl" />
+                                </div>
+                            </div>
+                            <p className="text-4xl font-bold text-white">{stats.viewsLast24Hours}</p>
+                        </div>
+
+                        {/* Last week */}
+                        <div className="bg-gradient-to-br from-indigo-500/20 to-indigo-600/20 backdrop-blur-lg rounded-2xl p-6 border border-indigo-500/20 hover:border-indigo-400/30 transition-all duration-300 group">
+                            <div className="flex items-start justify-between mb-4">
+                                <h3 className="text-white/80 font-arabicUI3 text-lg">آخر 7 أيام</h3>
+                                <div className="p-2 bg-indigo-500/20 rounded-xl group-hover:scale-110 transition-transform">
+                                    <FaCalendarWeek className="text-indigo-400 text-xl" />
+                                </div>
+                            </div>
+                            <p className="text-4xl font-bold text-white">{stats.viewsLastWeek}</p>
+                        </div>
+
+                        {/* Last month */}
+                        <div className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 backdrop-blur-lg rounded-2xl p-6 border border-emerald-500/20 hover:border-emerald-400/30 transition-all duration-300 group">
+                            <div className="flex items-start justify-between mb-4">
+                                <h3 className="text-white/80 font-arabicUI3 text-lg">آخر 30 يوم</h3>
+                                <div className="p-2 bg-emerald-500/20 rounded-xl group-hover:scale-110 transition-transform">
+                                    <FaCalendarAlt className="text-emerald-400 text-xl" />
+                                </div>
+                            </div>
+                            <p className="text-4xl font-bold text-white">{stats.viewsLastMonth}</p>
                         </div>
                     </div>
 
@@ -1197,7 +1594,17 @@ const StudentFollowup = () => {
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
                             <div>
                                 <h3 className="text-2xl font-bold text-white mb-2">قائمة الطلاب</h3>
-                                <p className="text-white/60 text-sm">قائمة شاملة لجميع الطلاب مع تفاصيل نشاطهم</p>
+                                <div className="flex items-center gap-2">
+                                    <p className="text-white/60 text-sm">قائمة شاملة لجميع الطلاب مع تفاصيل نشاطهم</p>
+                                    <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 px-3 py-1 rounded-lg border border-blue-500/20 text-xs text-white/80">
+                                        <span>ترتيب حسب: </span>
+                                        <span className="font-medium">
+                                            {sortBy === 'views' && 'المشاهدات'}
+                                            {sortBy === 'recent' && 'آخر نشاط'}
+                                            {sortBy === 'inactive' && 'غير نشط'}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                             <div className="flex flex-wrap gap-3">
                                 <button
@@ -1240,9 +1647,7 @@ const StudentFollowup = () => {
                                     <span>غير نشط</span>
                                 </button>
                             </div>
-                        </div>
-
-                        {/* Search and Pagination Controls */}
+                        </div>                        {/* Search and Pagination Controls */}
                         <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-8">
                             <div className="flex items-center gap-4 w-full md:w-auto">
                                 <div className="relative flex-1 md:flex-none">
@@ -1268,11 +1673,30 @@ const StudentFollowup = () => {
                                 )}
                             </div>
 
-                            <div className="bg-white/5 px-4 py-2 rounded-xl flex items-center gap-2">
-                                <FaUsers className="text-white/40" />
-                                <span className="text-white/70 text-sm">
-                                    عرض {((currentPage - 1) * studentsPerPage) + 1} - {Math.min(currentPage * studentsPerPage, totalStudents)} من {totalStudents} طالب
-                                </span>
+                            <div className="flex items-center gap-4">
+                                {/* Students per page selector */}
+                                <div className="flex items-center gap-2 bg-gradient-to-br from-blue-500/20 to-blue-600/20 px-4 py-2 rounded-xl border border-blue-500/20">
+                                    <span className="text-white/70 text-sm">عدد الطلاب:</span>
+                                    <select
+                                        value={studentsPerPage}
+                                        onChange={(e) => {
+                                            setStudentsPerPage(parseInt(e.target.value));
+                                            setCurrentPage(1); // Reset to first page when changing items per page
+                                        }}
+                                        className="bg-white/10 text-white border border-white/20 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                    >
+                                        <option className="bg-slate-800 text-white" value={10}>10</option>
+                                        <option className="bg-slate-800 text-white" value={50}>50</option>
+                                        <option className="bg-slate-800 text-white" value={100}>100</option>
+                                    </select>
+                                </div>
+
+                                <div className="bg-white/5 px-4 py-2 rounded-xl flex items-center gap-2">
+                                    <FaUsers className="text-white/40" />
+                                    <span className="text-white/70 text-sm">
+                                        عرض {((currentPage - 1) * studentsPerPage) + 1} - {Math.min(currentPage * studentsPerPage, totalStudents)} من {totalStudents} طالب
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -1383,45 +1807,97 @@ const StudentFollowup = () => {
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                     disabled={currentPage === 1}
-                                    className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 disabled:bg-white/5 disabled:opacity-50 rounded-lg transition-colors text-white"
+                                    className="px-4 py-2 bg-gradient-to-br from-blue-500/20 to-blue-600/20 hover:from-blue-500/30 hover:to-blue-600/30 disabled:opacity-50 rounded-lg transition-all duration-300 text-white border border-blue-500/20 hover:border-blue-400/40"
                                 >
-                                    السابق
+                                    <span className="flex items-center">
+                                        <FaChevronRight className="ml-1" />
+                                        <span>السابق</span>
+                                    </span>
                                 </button>
 
-                                <div className="flex gap-2">
-                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                        let pageNumber;
-                                        if (totalPages <= 5) {
-                                            pageNumber = i + 1;
-                                        } else if (currentPage <= 3) {
-                                            pageNumber = i + 1;
-                                        } else if (currentPage >= totalPages - 2) {
-                                            pageNumber = totalPages - 4 + i;
-                                        } else {
-                                            pageNumber = currentPage - 2 + i;
-                                        }
-
-                                        return (
+                                <div className="flex items-center gap-2">
+                                    {/* Render page buttons based on current position */}
+                                    {(() => {
+                                        // Helper function for creating page buttons
+                                        const renderPageButton = (pageNum) => (
                                             <button
-                                                key={pageNumber}
-                                                onClick={() => setCurrentPage(pageNumber)}
-                                                className={`px-3 py-2 rounded-lg transition-colors ${currentPage === pageNumber
-                                                    ? 'bg-blue-500 text-white'
-                                                    : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                                key={pageNum}
+                                                onClick={() => setCurrentPage(pageNum)}
+                                                className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-300 ${currentPage === pageNum
+                                                    ? 'bg-gradient-to-br from-blue-500/80 to-blue-600/80 text-white border border-blue-400/50'
+                                                    : 'bg-gradient-to-br from-white/5 to-white/10 text-white/70 hover:from-white/10 hover:to-white/20 border border-white/10 hover:border-white/20'
                                                     }`}
                                             >
-                                                {pageNumber}
+                                                {pageNum}
                                             </button>
                                         );
-                                    })}
+
+                                        const result = [];
+
+                                        // Case 1: Few pages (show all up to 6)
+                                        if (totalPages <= 6) {
+                                            for (let i = 1; i <= totalPages; i++) {
+                                                result.push(renderPageButton(i));
+                                            }
+                                            return result;
+                                        }
+
+                                        // Case 2: Near beginning (1, 2, 3, 4, 5, ..., totalPages)
+                                        if (currentPage < 4) {
+                                            for (let i = 1; i <= 5; i++) {
+                                                result.push(renderPageButton(i));
+                                            }
+
+                                            result.push(
+                                                <div key="ellipsis1" className="flex items-center justify-center w-10 h-10 text-white/50">...</div>
+                                            );
+
+                                            result.push(renderPageButton(totalPages));
+                                            return result;
+                                        }
+
+                                        // Case 3: Near end (1, ..., totalPages-4, totalPages-3, totalPages-2, totalPages-1, totalPages)
+                                        if (currentPage > totalPages - 3) {
+                                            result.push(renderPageButton(1));
+
+                                            result.push(
+                                                <div key="ellipsis2" className="flex items-center justify-center w-10 h-10 text-white/50">...</div>
+                                            );
+
+                                            for (let i = totalPages - 4; i <= totalPages; i++) {
+                                                result.push(renderPageButton(i));
+                                            }
+                                            return result;
+                                        }
+
+                                        // Case 4: Middle (1, ..., currentPage-1, currentPage, currentPage+1, ..., totalPages)
+                                        result.push(renderPageButton(1));
+                                        result.push(
+                                            <div key="ellipsis3" className="flex items-center justify-center w-10 h-10 text-white/50">...</div>
+                                        );
+
+                                        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                                            result.push(renderPageButton(i));
+                                        }
+
+                                        result.push(
+                                            <div key="ellipsis4" className="flex items-center justify-center w-10 h-10 text-white/50">...</div>
+                                        );
+                                        result.push(renderPageButton(totalPages));
+
+                                        return result;
+                                    })()}
                                 </div>
 
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                     disabled={currentPage === totalPages}
-                                    className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 disabled:bg-white/5 disabled:opacity-50 rounded-lg transition-colors text-white"
+                                    className="px-4 py-2 bg-gradient-to-br from-blue-500/20 to-blue-600/20 hover:from-blue-500/30 hover:to-blue-600/30 disabled:opacity-50 rounded-lg transition-all duration-300 text-white border border-blue-500/20 hover:border-blue-400/40"
                                 >
-                                    التالي
+                                    <span className="flex items-center">
+                                        <span>التالي</span>
+                                        <FaChevronLeft className="mr-1" />
+                                    </span>
                                 </button>
                             </div>
                         )}
