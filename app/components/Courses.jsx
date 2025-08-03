@@ -459,15 +459,15 @@ const Courses = () => {
                                 <div className="grid grid-cols-3 gap-2 font-arabicUI3 my-4">
                                     <div className="flex flex-col items-center p-2 bg-blue-500/5 rounded-lg">
                                         <GiDna2 className="text-blue-500 mb-1" />
-                                        <span className="text-xs text-slate-600 dark:text-slate-300">الوراثة</span>
+                                        <span className="text-xs text-slate-600 dark:text-slate-300">شرح</span>
                                     </div>
                                     <div className="flex flex-col items-center p-2 bg-red-500/5 rounded-lg">
                                         <FaMicroscope className="text-red-500 mb-1" />
-                                        <span className="text-xs text-slate-600 dark:text-slate-300">الخلايا</span>
+                                        <span className="text-xs text-slate-600 dark:text-slate-300">حل</span>
                                     </div>
                                     <div className="flex flex-col items-center p-2 bg-yellow-500/5 rounded-lg">
                                         <GiTestTubes className="text-yellow-500 mb-1" />
-                                        <span className="text-xs text-slate-600 dark:text-slate-300">التجارب</span>
+                                        <span className="text-xs text-slate-600 dark:text-slate-300">تقييم</span>
                                     </div>
                                 </div>
                                 {/* Course Stats */}
