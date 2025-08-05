@@ -10,6 +10,7 @@ import {
 import { MdOutlineAdminPanelSettings } from 'react-icons/md';
 import { IoAnalyticsOutline } from 'react-icons/io5';
 import { IoIosAnalytics } from 'react-icons/io';
+import { BsBoxSeam } from 'react-icons/bs';
 
 export default function AdminSidebar({ activeTab, setActiveTab, adminData, showLogoutConfirm, setShowLogoutConfirm }) {
     const allMenuItems = [
@@ -96,6 +97,13 @@ export default function AdminSidebar({ activeTab, setActiveTab, adminData, showL
             icon: <SettingsIcon size={20} />,
             tab: 'settings',
             roles: ['admin'] // Only admin can access settings
+        },
+        {
+            id: 12,
+            label: "إدارة الحزم",
+            icon: <BsBoxSeam size={20} />,
+            tab: 'packages',
+            roles: ['admin'] // Only admin can manage packages
         }
     ];
 
