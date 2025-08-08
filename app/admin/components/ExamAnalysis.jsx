@@ -200,7 +200,7 @@ export default function ExamAnalysis() {
         setStudentListLoading(true);
         try {
             const token = Cookies.get('token');
-            const response = await fetch(`http://192.168.1.3:9000/examResult/by-exam/${examId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/examResult/by-exam/${examId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
